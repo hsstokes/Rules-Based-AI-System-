@@ -210,7 +210,7 @@
             }
         }
         
-        // // Sharp Rectangle/Grid effect
+        // Sharp Rectangle/Grid effect
         class Projectile {
             constructor(x, y, radius, colour, direction) {
                 this.x = x;
@@ -234,6 +234,9 @@
                 // Rectangle-specific properties
                 this.rotation = random(TWO_PI);
                 this.rotationSpeed = random(-0.05, 0.05);
+                
+                // CHOOSE EFFECT TYPE ONCE IN CONSTRUCTOR
+                this.effectType = floor(random(3));
             }
             
             draw() {
@@ -245,46 +248,45 @@
                 noStroke();
                 const alpha = map(this.age, 0, this.lifetime, 255, 0);
                 fill(red(this.colour), green(this.colour), blue(this.colour), alpha);
-              
-                // Option 1: Single sharp rectangle
-                rectMode(CENTER);
-                rect(0,0, this.radius * 2, this.radius * 2);
 
-                // Option 2: Grid Pattern
-                /*
-                const gridSize = 3;
-                const cellSize = this.radius * 2 / gridSize;
-                for (let i = 0; i < gridSize; i++) {
-                    for (let j = 0; j < gridSize; j++) {
-                        if (random() > 0.3) { // Random gaps in grid
-                            rect(
-                                (i - gridSize/2 + 0.5) * cellSize,
-                                (j - gridSize/2 + 0.5) * cellSize,
-                                cellSize * 0.8, 
-                                cellSize * 0.8
-                             );
-                          
+                rectMode(CENTER);
+
+                // Use the pre-selected effect type
+                if (this.effectType === 0) {
+                    // Single rectangle
+                    rect(0, 0, this.radius * 2, this.radius * 2);
+                } else if (this.effectType === 1) {
+                    // Grid
+                    const gridSize = 3;
+                    const cellSize = this.radius * 2 / gridSize;
+                    for (let i = 0; i < gridSize; i++) {
+                        for (let j = 0; j < gridSize; j++) {
+                            if (random() > 0.3) {
+                                rect(
+                                    (i - gridSize/2 + 0.5) * cellSize,
+                                    (j - gridSize/2 + 0.5) * cellSize,
+                                    cellSize * 0.8, 
+                                    cellSize * 0.8
+                                );
+                            }
                         }
-                     }
+                    }
+                } else {
+                    // Layered
+                    for (let i = 0; i < 3; i++) {
+                        fill(red(this.colour), green(this.colour), blue(this.colour), alpha / (i + 1));
+                        rect(0, 0, this.radius * 2 * (1 - i * 0.2), this.radius * 2 * (1 - i * 0.2));
+                    }
                 }
-                */
-                
-                // Option 3: Multiple overlapping rectangles
-                /*
-                for (let i = 0; i < 3; i++) {
-                    fill(red(this.colour), green(this.colour), blue(this.colour), alpha / (i + 1));
-                    rect(0, 0, this.radius * 2 * (1 - i * 0.2), this.radius * 2 * (1 - i * 0.2));
-                }
-                */
 
                 pop();
-      
+
                 // Update position
                 this.x += this.velX;
                 this.y += this.velY;
 
                 // Update rotation
-                this.rotation += this rotationSpeed;
+                this.rotation += this.rotationSpeed;
                 
                 // Update size - faster growth
                 if (this.growing) {
