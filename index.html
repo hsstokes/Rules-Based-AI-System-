@@ -14,11 +14,10 @@
             padding: 0;
             overflow: hidden;
             touch-action: none;
-            background-color: #f5f5f7; /* Light, soft background instead of black */
+            background-color: #f5f5f7;
             font-family: 'Roboto Mono', monospace;
         }
         
-        /* Main container for better background handling */
         #p5-container {
             position: absolute;
             top: 0;
@@ -26,12 +25,11 @@
             width: 100%;
             height: 100%;
             overflow: hidden;
-            cursor: pointer; /* Show pointer cursor to indicate interactivity */
+            cursor: pointer;
         }
         
         canvas {
             display: block;
-            /* Added position to ensure canvas doesn't create scrollbars */
             position: absolute;
             top: 50%;
             left: 50%;
@@ -44,7 +42,7 @@
             left: 0;
             width: 100%;
             height: 100%;
-            background-color: rgba(245, 245, 247, 0.9); /* Lighter overlay */
+            background-color: rgba(245, 245, 247, 0.9);
             display: flex;
             flex-direction: column;
             justify-content: center;
@@ -124,7 +122,7 @@
     <div id="startOverlay">
         <div id="startTitle">Tactile Thresholds</div>
         <div id="startDescription">
-            "Rules-Based AI System": Explore the intersection of physical and digital through touch. 
+            "Pragmatic Human Empathy": Explore the intersection of physical and digital through touch. 
             Each interaction generates unique sound compositions that map the 
             emotional relationships between human and AI.
         </div>
@@ -132,8 +130,7 @@
     </div>
     <div id="soundButton">
         <img src="images/your-button-image.png" alt="Sound Button">
-    </div>
-
+    </div>       
     <script>
         // Game variables
         let walkRight = [];
@@ -185,8 +182,8 @@
                 // Use raw canvas API for blend mode but with higher opacity
                 let ctx = drawingContext;
                 ctx.save();
-                ctx.globalCompositeOperation = 'multiply';
-                ctx.globalAlpha = 0.95; // Less transparent (0.9 -> 0.95)
+                ctx.globalCompositeOperation = 'darken';
+                ctx.globalAlpha = 1.0; // Less transparent (0.9 -> 1.0)
                 
                 // Draw the frame at exact dimensions
                 if (frames[this.walkCount] && frames[this.walkCount].canvas) {
@@ -211,7 +208,7 @@
             }
         }
         
-        // Sharp Rectangle/Grid effect
+        // Rectangle grid effect (modified from circles)
         class Projectile {
             constructor(x, y, radius, colour, direction) {
                 this.x = x;
@@ -230,63 +227,37 @@
                 this.lifetime = random(30, 120);
                 this.age = 0;
                 this.growing = true;
-                this.maxRadius = radius * random(3, 8); 
-
-                // Rectangle-specific properties
+                this.maxRadius = radius * random(3, 8); // Larger shapes
+                
+                // NEW: Add rotation for rectangles
                 this.rotation = random(TWO_PI);
                 this.rotationSpeed = random(-0.05, 0.05);
                 
-                // CHOOSE EFFECT TYPE ONCE IN CONSTRUCTOR
+                // NEW: Choose effect type (0 = single rect, 1 = grid, 2 = layered)
                 this.effectType = floor(random(3));
             }
             
             draw() {
+                // NEW: Add rotation transformation
                 push();
                 translate(this.x, this.y);
                 rotate(this.rotation);
-              
-                // Basic rectangle effect
+                
+                // Set color with alpha
                 noStroke();
                 const alpha = map(this.age, 0, this.lifetime, 255, 0);
                 fill(red(this.colour), green(this.colour), blue(this.colour), alpha);
-
-                rectMode(CENTER);
-
-                // Use the pre-selected effect type
-                if (this.effectType === 0) {
-                    // Single rectangle
-                    rect(0, 0, this.radius * 2, this.radius * 2);
-                } else if (this.effectType === 1) {
-                    // Grid
-                    const gridSize = 3;
-                    const cellSize = this.radius * 2 / gridSize;
-                    for (let i = 0; i < gridSize; i++) {
-                        for (let j = 0; j < gridSize; j++) {
-                            if (random() > 0.3) {
-                                rect(
-                                    (i - gridSize/2 + 0.5) * cellSize,
-                                    (j - gridSize/2 + 0.5) * cellSize,
-                                    cellSize * 0.8, 
-                                    cellSize * 0.8
-                                );
-                            }
-                        }
-                    }
-                } else {
-                    // Layered
-                    for (let i = 0; i < 3; i++) {
-                        fill(red(this.colour), green(this.colour), blue(this.colour), alpha / (i + 1));
-                        rect(0, 0, this.radius * 2 * (1 - i * 0.2), this.radius * 2 * (1 - i * 0.2));
-                    }
-                }
-
+                
+                // MODIFIED: Draw rectangles based on effect type
+                this.drawRectEffect(0, 0, this.radius);
+                
                 pop();
-
+                
                 // Update position
                 this.x += this.velX;
                 this.y += this.velY;
-
-                // Update rotation
+                
+                // NEW: Update rotation
                 this.rotation += this.rotationSpeed;
                 
                 // Update size - faster growth
@@ -301,6 +272,39 @@
                 
                 // Update age
                 this.age++;
+            }
+            
+            // MODIFIED: Method to draw rectangle effects
+            drawRectEffect(x, y, radius) {
+                rectMode(CENTER);
+                
+                if (this.effectType === 0) {
+                    // Single sharp rectangle
+                    rect(x, y, radius * 2, radius * 2);
+                } else if (this.effectType === 1) {
+                    // Grid pattern
+                    const gridSize = 3;
+                    const cellSize = radius * 2 / gridSize;
+                    for (let i = 0; i < gridSize; i++) {
+                        for (let j = 0; j < gridSize; j++) {
+                            if (random() > 0.3) { // Random gaps
+                                rect(
+                                    (i - gridSize/2 + 0.5) * cellSize,
+                                    (j - gridSize/2 + 0.5) * cellSize,
+                                    cellSize * 0.8,
+                                    cellSize * 0.8
+                                );
+                            }
+                        }
+                    }
+                } else {
+                    // Layered rectangles
+                    for (let i = 0; i < 3; i++) {
+                        const currentAlpha = map(this.age, 0, this.lifetime, 255, 0) / (i + 1);
+                        fill(red(this.colour), green(this.colour), blue(this.colour), currentAlpha);
+                        rect(x, y, radius * 2 * (1 - i * 0.2), radius * 2 * (1 - i * 0.2));
+                    }
+                }
             }
             
             isFinished() {
@@ -382,11 +386,7 @@
             
             // Create AudioContext
             window.AudioContext = window.AudioContext || window.webkitAudioContext;
-            try {
-                window.audioContext = new AudioContext();
-            } catch(e) {
-                console.error("Could not create AudioContext:", e);
-            }
+            window.audioContext = new AudioContext();
         }
         
         function hideControls() {
@@ -440,32 +440,25 @@
         }
         
         function initSounds() {
-            try {
-                // Force audio context to start
-                if (window.audioContext && window.audioContext.state === 'suspended') {
-                    window.audioContext.resume().then(() => {
-                        console.log("AudioContext resumed by initSounds()");
-                    });
-                }
-                
-                // Add a direct HTML5 audio for fallback
-                if (!window.backupAudio) {
-                    window.backupAudio = new Audio();
-                    window.backupAudio.src = 'sounds/Bulletsound.mp3';
-                    window.backupAudio.load();
-                }
-                
-                // Try playing with p5.sound
-                if (bulletSound && typeof bulletSound.play === 'function') {
-                    bulletSound.play();
-                    bulletSound.stop();
-                }
-                
-                soundsLoaded = true;
-                soundInitialized = true;
-            } catch(e) {
-                console.error("Sound initialization failed:", e);
+            // Force audio context to start
+            if (window.audioContext && window.audioContext.state === 'suspended') {
+                window.audioContext.resume();
             }
+            
+            // Add a direct HTML5 audio for fallback
+            if (!window.backupAudio) {
+                window.backupAudio = new Audio();
+                window.backupAudio.src = 'sounds/Bulletsound.mp3';
+                window.backupAudio.load();
+            }
+            
+            // Try playing with p5.sound
+            if (bulletSound && typeof bulletSound.play === 'function') {
+                bulletSound.play();
+                bulletSound.stop();
+            }
+            soundsLoaded = true;
+            soundInitialized = true;
         }
         
         function createCircles() {
@@ -482,12 +475,25 @@
             
             for (let i = 0; i < numCircles; i++) {
                 const size = random(7, 16); // Larger initial size
-                // Use a variety of green/blue colors
-                const circleColor = color(
-                    random(220, 255),  // high red
-                    random(0, 40), // low green
-                    random(220, 255)  // high blue
-                );
+                
+                 // Randomly choose between blue and red colors
+                 let circleColor;
+
+                if (random() < 0.5) { // 50% chance of blue
+                    // Blue colors (low red, low green, high blue)
+                    circleColor = color(
+                        random(0, 50),  // low red
+                        random(0, 100), // low green
+                        random(200, 255)  // high blue
+                    );
+                } else { // 50% chance of red
+                    // Red colors (high red, low green, low blue)
+                    circleColor = color(
+                        random(200, 255), // high red
+                        random(0, 50),    // low green
+                        random(0, 50)     // low blue
+                    );
+                }
                 
                 bullets.push(new Projectile(
                     centerX + random(-15, 15),
@@ -518,18 +524,19 @@
                         bulletSound.play();
                     }
                 }
+                
                 // Approach 2: Use direct HTML5 Audio API as fallback
                 if (window.backupAudio) {
                     window.backupAudio.currentTime = 0;
-                    window.backupAudio.play().catch(e => console.log("HTML5 Audio fallback failed:", e));
+                    window.backupAudio.play();
                 }
                 
                 // Approach 3: Create a new Audio element each time (works on some mobile browsers)
                 const audio = new Audio('sounds/Bulletsound.mp3');
-                audio.play().catch(e => console.log("New Audio element failed:", e));
+                audio.play();
                 
             } catch (e) {
-                console.error("All sound play attempts failed:", e);
+                // Silent error handling
             }
         }
         
