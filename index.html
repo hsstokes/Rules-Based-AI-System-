@@ -248,7 +248,7 @@
               
                 // Option 1: Single sharp rectangle
                 rectMode(CENTER);
-                Rect(0,0, this.radius * 2, this.radius * 2);
+                rect(0,0, this.radius * 2, this.radius * 2);
 
                 // Option 2: Grid Pattern
                 /*
@@ -268,7 +268,9 @@
                      }
                 }
                 */
+                
                 // Option 3: Multiple overlapping rectangles
+                /*
                 for (let i = 0; i < 3; i++) {
                     fill(red(this.colour), green(this.colour), blue(this.colour), alpha / (i + 1));
                     rect(0, 0, this.radius * 2 * (1 - i * 0.2), this.radius * 2 * (1 - i * 0.2));
@@ -277,10 +279,12 @@
 
                 pop();
       
-                
                 // Update position
                 this.x += this.velX;
                 this.y += this.velY;
+
+                // Update rotation
+                this.rotation += this rotationSpeed;
                 
                 // Update size - faster growth
                 if (this.growing) {
