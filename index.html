@@ -233,11 +233,15 @@
             position: absolute;
             top: 10px;
             right: 10px;
-            padding: 10px;
-            background-color: rgba(255, 255, 255, 0.8);
+            padding: 15px;
+            background-color: rgba(255, 255, 255, 0.9);
             border-radius: 10px;
             z-index: 800;
             display: none;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            max-width: 320px;
+            max-height: 80vh;
+            overflow-y: auto;
         }
         
         #vizToggle {
@@ -253,6 +257,45 @@
             z-index: 801;
             font-family: 'Roboto Mono', monospace;
             display: none;
+        }
+        
+        /* Framework visualization elements */
+        .dimension-container {
+            margin-bottom: 15px;
+            border-bottom: 1px solid #eee;
+            padding-bottom: 15px;
+        }
+        
+        .dimension-title {
+            font-size: 14px;
+            font-weight: bold;
+            margin-bottom: 8px;
+        }
+        
+        .dimension-scale {
+            height: 15px;
+            width: 100%;
+            background: linear-gradient(to right, #3498db, #e74c3c);
+            border-radius: 3px;
+            position: relative;
+            margin: 8px 0;
+        }
+        
+        .dimension-labels {
+            display: flex;
+            justify-content: space-between;
+            font-size: 11px;
+            color: #666;
+        }
+        
+        .dimension-marker {
+            position: absolute;
+            width: 8px;
+            height: 20px;
+            background-color: #333;
+            border-radius: 2px;
+            top: -2px;
+            transform: translateX(-50%);
         }
     </style>
 </head>
@@ -276,14 +319,14 @@
         <div id="feedbackTitle">How did this sound make you feel?</div>
         <form id="feedbackForm">
             <div class="emotion-options">
-                <button type="button" class="emotion-option" data-emotion="calm">Calm</button>
-                <button type="button" class="emotion-option" data-emotion="anxious">Anxious</button>
-                <button type="button" class="emotion-option" data-emotion="curious">Curious</button>
-                <button type="button" class="emotion-option" data-emotion="confused">Confused</button>
-                <button type="button" class="emotion-option" data-emotion="joyful">Joyful</button>
-                <button type="button" class="emotion-option" data-emotion="melancholic">Melancholic</button>
-                <button type="button" class="emotion-option" data-emotion="unsettled">Unsettled</button>
-                <button type="button" class="emotion-option" data-emotion="inspired">Inspired</button>
+                <button type="button" class="emotion-option" data-emotion="analytical">Analytical</button>
+                <button type="button" class="emotion-option" data-emotion="embodied">Embodied</button>
+                <button type="button" class="emotion-option" data-emotion="temporal">Temporal</button>
+                <button type="button" class="emotion-option" data-emotion="atemporal">Atemporal</button>
+                <button type="button" class="emotion-option" data-emotion="contextual">Contextual</button>
+                <button type="button" class="emotion-option" data-emotion="decontextualized">Decontextualized</button>
+                <button type="button" class="emotion-option" data-emotion="intuitive">Intuitive</button>
+                <button type="button" class="emotion-option" data-emotion="computational">Computational</button>
             </div>
             
             <div class="slider-container">
@@ -309,11 +352,67 @@
     </div>
     
     <!-- Visualization panel -->
-    <button id="vizToggle">Show Results</button>
+    <button id="vizToggle">View Empathy Framework</button>
     <div id="vizPanel">
-        <canvas id="resultsCanvas" width="300" height="200"></canvas>
-    </div>
-    
+        <h3 style="margin-top: 0; font-size: 16px;">Dimensional Empathy Framework</h3>
+        
+        <!-- Analytical vs Embodied -->
+        <div class="dimension-container">
+            <div class="dimension-title">Analytical ↔ Embodied</div>
+            <div class="dimension-scale">
+                <div class="dimension-marker" id="marker-analytical" style="left: 25%;"></div>
+            </div>
+            <div class="dimension-labels">
+                <span>Analytical</span>
+                <span>Embodied</span>
+            </div>
+        </div>
+        
+        <!-- Temporal vs Atemporal -->
+        <div class="dimension-container">
+            <div class="dimension-title">Temporal ↔ Atemporal</div>
+            <div class="dimension-scale">
+                <div class="dimension-marker" id="marker-temporal" style="left: 25%;"></div>
+            </div>
+            <div class="dimension-labels">
+                <span>Temporal</span>
+                <span>Atemporal</span>
+            </div>
+        </div>
+        
+        <!-- Contextual vs Decontextualized -->
+        <div class="dimension-container">
+            <div class="dimension-title">Contextual ↔ Decontextualized</div>
+            <div class="dimension-scale">
+                <div class="dimension-marker" id="marker-contextual" style="left: 25%;"></div>
+            </div>
+            <div class="dimension-labels">
+                <span>Contextual</span>
+                <span>Decontextualized</span>
+            </div>
+        </div>
+        
+        <!-- Intuitive vs Computational -->
+        <div class="dimension-container">
+            <div class="dimension-title">Intuitive ↔ Computational</div>
+            <div class="dimension-scale">
+                <div class="dimension-marker" id="marker-intuitive" style="left: 25%;"></div>
+            </div>
+            <div class="dimension-labels">
+                <span>Intuitive</span>
+                <span>Computational</span>
+            </div>
+        </div>
+        
+        <div id="resultsContainer">
+            <h4 style="font-size: 14px; margin-bottom: 10px;">Response Summary</h4>
+            <div id="responseCount">Interactions: 0</div>
+            <div id="uncannyScore">Average Uncanny Score: -</div>
+            <div id="alignmentScore">Average Alignment: -</div>
+        </div>
+    </script>
+</body>
+</html>
     <script>
         // Game variables
         let walkRight = [];
@@ -333,10 +432,25 @@
         
         // New feedback variables
         let feedbackData = [];
-        let currentSoundType = "";
+        let currentMode = "rules-based"; // Start with rules-based mode
         let showingFeedback = false;
         let interactionCount = 0;
-        let soundTypes = ["calm", "anxious", "melancholic", "joyful", "unsettled"];
+        
+        // Framework dimensions with initial values (AI perspective)
+        let framework = {
+            analytical: 0.75, // 0 = analytical, 1 = embodied
+            temporal: 0.25,   // 0 = temporal, 1 = atemporal
+            contextual: 0.25, // 0 = contextual, 1 = decontextualized
+            intuitive: 0.15   // 0 = intuitive, 1 = computational
+        };
+        
+        // Human perception (will be updated based on feedback)
+        let humanPerception = {
+            analytical: 0.5,
+            temporal: 0.5,
+            contextual: 0.5,
+            intuitive: 0.5
+        };
         
         // Player class
         class Player {
@@ -513,14 +627,9 @@
                 walkLeft.push(loadImage(`soldier/L${i}.png`));
             }
             
-            // Sound loading - multiple sound options for different emotional states
+            // Sound loading
             soundFormats('mp3');
             bulletSound = loadSound('sounds/Bulletsound.mp3');
-            
-            // Additional sounds would be loaded here
-            // calmSound = loadSound('sounds/calm.mp3');
-            // anxiousSound = loadSound('sounds/anxious.mp3');
-            // etc.
         }
         
         function setup() {
@@ -583,6 +692,9 @@
             // Set up visualization toggle
             document.getElementById('vizToggle').addEventListener('click', toggleVizPanel);
             
+            // Update framework visualization
+            updateFrameworkVisualization();
+            
             frameRate(12); // Smoother framerate
             
             // Create AudioContext
@@ -636,15 +748,18 @@
             
             // Store feedback
             feedbackData.push({
-                soundType: currentSoundType,
+                mode: currentMode,
                 perceivedEmotion: selectedEmotion,
                 alignmentScore: alignmentValue,
                 uncannyScore: uncannyValue,
                 timestamp: new Date().toISOString()
             });
             
-            // Update visualization if it exists
-            updateVisualization();
+            // Update human perception based on feedback
+            updateHumanPerception(selectedEmotion);
+            
+            // Update visualization
+            updateFrameworkVisualization();
             
             // Show visualization toggle after a few responses
             if (feedbackData.length >= 3 && document.getElementById('vizToggle').style.display !== 'block') {
@@ -654,8 +769,43 @@
             // Hide feedback form
             hideFeedbackForm();
             
+            // Switch to adaptive mode after first feedback
+            if (currentMode === "rules-based") {
+                currentMode = "adaptive";
+            }
+            
             // For testing - log feedback data
             console.log("Feedback data:", feedbackData);
+        }
+        
+        function updateHumanPerception(emotion) {
+            // Map the selected emotion to framework dimensions
+            switch(emotion) {
+                case "analytical":
+                    humanPerception.analytical = 0.1; // Very analytical
+                    break;
+                case "embodied":
+                    humanPerception.analytical = 0.9; // Very embodied
+                    break;
+                case "temporal":
+                    humanPerception.temporal = 0.1; // Very temporal
+                    break;
+                case "atemporal":
+                    humanPerception.temporal = 0.9; // Very atemporal
+                    break;
+                case "contextual":
+                    humanPerception.contextual = 0.1; // Very contextual
+                    break;
+                case "decontextualized":
+                    humanPerception.contextual = 0.9; // Very decontextualized
+                    break;
+                case "intuitive":
+                    humanPerception.intuitive = 0.1; // Very intuitive
+                    break;
+                case "computational":
+                    humanPerception.intuitive = 0.9; // Very computational
+                    break;
+            }
         }
         
         function toggleVizPanel() {
@@ -664,81 +814,36 @@
                 vizPanel.style.display = 'none';
             } else {
                 vizPanel.style.display = 'block';
-                updateVisualization();
+                updateFrameworkVisualization();
             }
         }
         
-        function updateVisualization() {
-            const canvas = document.getElementById('resultsCanvas');
-            if (!canvas) return;
+        function updateFrameworkVisualization() {
+            // Update markers based on current framework values
+            document.getElementById('marker-analytical').style.left = `${framework.analytical * 100}%`;
+            document.getElementById('marker-temporal').style.left = `${framework.temporal * 100}%`;
+            document.getElementById('marker-contextual').style.left = `${framework.contextual * 100}%`;
+            document.getElementById('marker-intuitive').style.left = `${framework.intuitive * 100}%`;
             
-            const ctx = canvas.getContext('2d');
-            ctx.clearRect(0, 0, canvas.width, canvas.height);
-            
-            // Simple visualization - could be much more sophisticated
-            ctx.fillStyle = '#333';
-            ctx.font = '14px Roboto Mono';
-            ctx.fillText('Emotional Alignment by Sound Type', 10, 20);
-            
-            // Count responses by emotion and sound type
-            const emotions = ['calm', 'anxious', 'curious', 'confused', 'joyful', 'melancholic', 'unsettled', 'inspired'];
-            const soundCounts = {};
-            const alignmentBySound = {};
-            
-            soundTypes.forEach(type => {
-                soundCounts[type] = {};
-                alignmentBySound[type] = {total: 0, count: 0};
+            // Update summary statistics
+            if (feedbackData.length > 0) {
+                // Calculate averages
+                let totalUncanny = 0;
+                let totalAlignment = 0;
                 
-                emotions.forEach(emotion => {
-                    soundCounts[type][emotion] = 0;
+                feedbackData.forEach(item => {
+                    totalUncanny += item.uncannyScore;
+                    totalAlignment += item.alignmentScore;
                 });
-            });
-            
-            feedbackData.forEach(item => {
-                if (soundCounts[item.soundType] && soundCounts[item.soundType][item.perceivedEmotion]) {
-                    soundCounts[item.soundType][item.perceivedEmotion]++;
-                }
                 
-                if (alignmentBySound[item.soundType]) {
-                    alignmentBySound[item.soundType].total += item.alignmentScore;
-                    alignmentBySound[item.soundType].count++;
-                }
-            });
-            
-            // Draw simple bar chart of alignment scores
-            let y = 50;
-            const barHeight = 20;
-            const maxBarWidth = 150;
-            
-            for (const type in alignmentBySound) {
-                if (alignmentBySound[type].count > 0) {
-                    const avgScore = alignmentBySound[type].total / alignmentBySound[type].count;
-                    const barWidth = (avgScore / 10) * maxBarWidth;
-                    
-                    ctx.fillStyle = '#333';
-                    ctx.fillText(type, 10, y);
-                    
-                    ctx.fillStyle = getColorForSoundType(type);
-                    ctx.fillRect(100, y - 15, barWidth, barHeight);
-                    
-                    ctx.fillStyle = '#333';
-                    ctx.fillText(`${avgScore.toFixed(1)}/10`, 100 + barWidth + 5, y);
-                    
-                    y += 35;
-                }
+                const avgUncanny = totalUncanny / feedbackData.length;
+                const avgAlignment = totalAlignment / feedbackData.length;
+                
+                // Update display
+                document.getElementById('responseCount').textContent = `Interactions: ${feedbackData.length}`;
+                document.getElementById('uncannyScore').textContent = `Average Uncanny Score: ${avgUncanny.toFixed(1)}/10`;
+                document.getElementById('alignmentScore').textContent = `Average Alignment: ${avgAlignment.toFixed(1)}/10`;
             }
-        }
-        
-        function getColorForSoundType(type) {
-            const colors = {
-                'calm': 'rgba(100, 149, 237, 0.7)',
-                'anxious': 'rgba(255, 99, 71, 0.7)',
-                'melancholic': 'rgba(123, 104, 238, 0.7)',
-                'joyful': 'rgba(50, 205, 50, 0.7)',
-                'unsettled': 'rgba(255, 165, 0, 0.7)'
-            };
-            
-            return colors[type] || 'rgba(128, 128, 128, 0.7)';
         }
         
         function hideControls() {
@@ -835,69 +940,47 @@
             // Only proceed if game is started
             if (!gameStarted) return;
             
-            // Choose a random sound type for this interaction
-            currentSoundType = soundTypes[Math.floor(Math.random() * soundTypes.length)];
-            
             // Make multiple attempts to play sound
-            playSound(currentSoundType);
+            playSound();
             
             // Create multiple beautiful random circles
             const numCircles = random(5, 12); // More circles
             const centerX = soldier.x + soldier.width / 2;
             const centerY = soldier.y + soldier.height / 2;
             
-            // Set color scheme based on sound type
+            // Set color scheme based on current mode
             let circleColor;
             
-            // Map sound types to color schemes
-            switch(currentSoundType) {
-                case 'calm':
-                    // Blues and soft purples
+            if (currentMode === "rules-based") {
+                // In rules-based mode (initial state), use blue and red as in original code
+                if (random() < 0.5) { // 50% chance of blue
+                    // Blue colors (low red, low green, high blue)
                     circleColor = color(
-                        random(50, 100),
-                        random(100, 150),
-                        random(200, 255)
+                        random(0, 50),  // low red
+                        random(0, 100), // low green
+                        random(200, 255)  // high blue
                     );
-                    break;
-                case 'anxious':
-                    // Reds and oranges
+                } else { // 50% chance of red
+                    // Red colors (high red, low green, low blue)
                     circleColor = color(
-                        random(200, 255),
-                        random(50, 100),
-                        random(0, 50)
+                        random(200, 255), // high red
+                        random(0, 50),    // low green
+                        random(0, 50)     // low blue
                     );
-                    break;
-                case 'melancholic':
-                    // Purples and deep blues
-                    circleColor = color(
-                        random(100, 150),
-                        random(50, 100),
-                        random(180, 230)
-                    );
-                    break;
-                case 'joyful':
-                    // Yellows and greens
-                    circleColor = color(
-                        random(200, 255),
-                        random(200, 255),
-                        random(0, 100)
-                    );
-                    break;
-                case 'unsettled':
-                    // Discordant greens and purples
-                    circleColor = color(
-                        random(100, 150),
-                        random(180, 230),
-                        random(100, 150)
-                    );
-                    break;
-                default:
-                    // Default random colors
-                    circleColor = color(
-                        random(0, 255),
-                        random(0, 255),
-                        random(0, 255)
-                    );
+                }
+            } else {
+                // In adaptive mode (after feedback), use colors based on framework
+                // Create RGB values based on the four framework dimensions
+                const r = map(framework.analytical, 0, 1, 50, 220); // More red = more embodied
+                const g = map(framework.temporal, 0, 1, 50, 220);    // More green = more atemporal
+                const b = map(framework.intuitive, 0, 1, 50, 220);   // More blue = more computational
+                
+                // Add some variation for visual interest
+                circleColor = color(
+                    r + random(-30, 30),
+                    g + random(-30, 30),
+                    b + random(-30, 30)
+                );
             }
             
             for (let i = 0; i < numCircles; i++) {
@@ -917,14 +1000,31 @@
             
             // Alternate the character direction for visual interest
             soldier.last_direction = soldier.last_direction === "right" ? "left" : "right";
+            
+            // If in adaptive mode, gradually shift framework values toward human perception
+            if (currentMode === "adaptive") {
+                adaptFrameworkToHumanPerception();
+            }
         }
         
-        function playSound(soundType) {
+        function adaptFrameworkToHumanPerception() {
+            // Gradually shift framework values toward human perception
+            const adaptationRate = 0.1; // How quickly the system adapts
+            
+            framework.analytical += (humanPerception.analytical - framework.analytical) * adaptationRate;
+            framework.temporal += (humanPerception.temporal - framework.temporal) * adaptationRate;
+            framework.contextual += (humanPerception.contextual - framework.contextual) * adaptationRate;
+            framework.intuitive += (humanPerception.intuitive - framework.intuitive) * adaptationRate;
+            
+            // Update visualization if visible
+            if (document.getElementById('vizPanel').style.display === 'block') {
+                updateFrameworkVisualization();
+            }
+        }
+        
+        function playSound() {
             // Multiple approaches to try to play sound
             try {
-                // In a real implementation, you would select different sounds based on soundType
-                // For now, we'll just use the bulletSound for demonstration
-                
                 // Approach 1: Use p5.sound
                 if (soundsLoaded) {
                     if (window.audioContext && window.audioContext.state === 'suspended') {
