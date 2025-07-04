@@ -16,6 +16,7 @@
             touch-action: none;
             background-color: #f5f5f7;
             font-family: 'Roboto Mono', monospace;
+            -webkit-text-size-adjust: 100%;
         }
         
         #p5-container {
@@ -52,6 +53,7 @@
             overflow-y: auto;
             box-sizing: border-box;
             padding: 20px;
+            -webkit-overflow-scrolling: touch;
         }
         
         #startOverlay {
@@ -66,6 +68,7 @@
         #resultsOverlay {
             display: none;
             justify-content: center;
+            padding-bottom: 100px;
         }
         
         /* Titles and text */
@@ -102,6 +105,8 @@
             -webkit-tap-highlight-color: rgba(0,0,0,0);
             touch-action: manipulation;
             margin: 10px 0;
+            min-height: 44px;
+            min-width: 44px;
         }
         
         .button:hover {
@@ -110,6 +115,7 @@
         
         .button:active {
             transform: scale(0.98);
+            background-color: rgba(0, 102, 204, 0.2);
         }
         
         .button.primary {
@@ -201,6 +207,38 @@
             touch-action: manipulation;
             font-size: 14px;
             text-align: center;
+            min-height: 44px;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .option-button::after {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 5px;
+            height: 5px;
+            background: rgba(0, 102, 204, 0.5);
+            opacity: 0;
+            border-radius: 100%;
+            transform: scale(1, 1) translate(-50%, -50%);
+            transform-origin: 50% 50%;
+        }
+        
+        .option-button:active::after {
+            animation: ripple 0.4s ease-out;
+        }
+        
+        @keyframes ripple {
+            0% {
+                transform: scale(0, 0);
+                opacity: 0.5;
+            }
+            100% {
+                transform: scale(40, 40);
+                opacity: 0;
+            }
         }
         
         .option-button.selected {
@@ -336,9 +374,42 @@
             border-radius: 8px;
             box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
         }
+        
+        /* Loading indicator */
+        #loadingOverlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(245, 245, 247, 1);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 2000;
+        }
+        
+        .loader {
+            border: 5px solid #f3f3f3;
+            border-top: 5px solid #0066cc;
+            border-radius: 50%;
+            width: 50px;
+            height: 50px;
+            animation: spin 1s linear infinite;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
     </style>
 </head>
 <body>
+    <!-- Loading indicator -->
+    <div id="loadingOverlay">
+        <div class="loader"></div>
+    </div>
+    
     <div id="p5-container"></div>
     
     <!-- Start Screen -->
@@ -510,7 +581,7 @@
             <p><strong>Intuitive vs Computational</strong>: Distinguishes between interactions that feel natural and effortless versus those that feel calculated and algorithmically determined.</p>
             
             <h3>The Uncanny Valley:</h3>
-            <p>The "uncanny valley" occurs when an AI interaction is close to human-like but not quite there—creating a sense of unease or discomfort. This framework helps identify where that threshold exists for different people.</p>
+            <p>The "uncanny valley" occurs when an AI interaction is close to human-like but not quite there--creating a sense of unease or discomfort. This framework helps identify where that threshold exists for different people.</p>
         </div>
         
         <button id="closeHelp" class="button primary">Return to Experience</button>
@@ -528,6 +599,8 @@
         let soundsLoaded = false;
         let soundInitialized = false;
         let soldier;
+        let assetsLoaded = 0;
+        let totalAssets = 13; // 6 right + 6 left images + 1 grid
         
         // Canvas dimensions
         let W_WIDTH = 1920;
@@ -720,20 +793,31 @@
             }
         }
         
+        // Function to increment asset loading counter
+        function assetLoaded() {
+            assetsLoaded++;
+            if (assetsLoaded >= totalAssets) {
+                // Hide loading overlay when all assets are loaded
+                document.getElementById('loadingOverlay').style.display = 'none';
+            }
+        }
+        
         // Preload assets
         function preload() {
-            // Load background
-            gridImg = loadImage('images/grid_img.jpeg');
+            // Load background with callback
+            gridImg = loadImage('images/grid_img.jpeg', assetLoaded);
             
-            // Load character images
+            // Load character images with callbacks
             for (let i = 1; i <= 6; i++) {
-                walkRight.push(loadImage(`soldier/${i}.png`));
-                walkLeft.push(loadImage(`soldier/L${i}.png`));
+                walkRight.push(loadImage(`soldier/${i}.png`, assetLoaded));
+                walkLeft.push(loadImage(`soldier/L${i}.png`, assetLoaded));
             }
             
             // Sound loading
             soundFormats('mp3');
-            bulletSound = loadSound('sounds/Bulletsound.mp3');
+            bulletSound = loadSound('sounds/Bulletsound.mp3', function() {
+                soundsLoaded = true;
+            });
         }
         
         function setup() {
@@ -774,54 +858,215 @@
             // Create AudioContext
             window.AudioContext = window.AudioContext || window.webkitAudioContext;
             window.audioContext = new AudioContext();
+            
+            // Show loading overlay if assets are still loading
+            if (assetsLoaded < totalAssets) {
+                document.getElementById('loadingOverlay').style.display = 'flex';
+            } else {
+                document.getElementById('loadingOverlay').style.display = 'none';
+            }
         }
         
         function setupEventListeners() {
+            // Remove any existing event listeners to prevent duplicates
+            clearEventListeners();
+            
             // Start button
-            document.getElementById('startButton').addEventListener('click', startExperience);
-            document.getElementById('startButton').addEventListener('touchend', function(e) {
-                e.preventDefault();
-                startExperience();
-            });
+            const startButton = document.getElementById('startButton');
+            startButton.addEventListener('click', handleStartClick);
+            startButton.addEventListener('touchstart', handleStartTouch);
             
             // Interaction button
-            document.getElementById('interactButton').addEventListener('click', createInteraction);
-            document.getElementById('interactButton').addEventListener('touchend', function(e) {
-                e.preventDefault();
-                createInteraction();
-            });
+            const interactButton = document.getElementById('interactButton');
+            interactButton.addEventListener('click', handleInteractClick);
+            interactButton.addEventListener('touchstart', handleInteractTouch);
             
             // Help button
-            document.getElementById('helpButton').addEventListener('click', showHelp);
-            document.getElementById('closeHelp').addEventListener('click', hideHelp);
+            const helpButton = document.getElementById('helpButton');
+            helpButton.addEventListener('click', showHelp);
+            helpButton.addEventListener('touchstart', handleHelpTouch);
             
-            // Feedback form option buttons
-            const optionButtons = document.querySelectorAll('.option-button');
-            optionButtons.forEach(button => {
-                button.addEventListener('click', function() {
-                    // Find the group this button belongs to
-                    const group = this.dataset.dimension ? 'dimension' : 
-                                 this.dataset.dimension2 ? 'dimension2' : 
-                                 this.dataset.emotion ? 'emotion' : null;
-                    
-                    if (group) {
-                        // Deselect other buttons in the same group
-                        document.querySelectorAll(`.option-button[data-${group}]`).forEach(btn => {
-                            btn.classList.remove('selected');
-                        });
-                        
-                        // Select this button
-                        this.classList.add('selected');
-                    }
-                });
-            });
+            const closeHelp = document.getElementById('closeHelp');
+            closeHelp.addEventListener('click', hideHelp);
+            closeHelp.addEventListener('touchstart', handleCloseHelpTouch);
+            
+            // Set up option buttons
+            setupOptionButtons();
             
             // Submit feedback button
-            document.getElementById('submitFeedback').addEventListener('click', submitFeedback);
+            const submitButton = document.getElementById('submitFeedback');
+            submitButton.addEventListener('click', submitFeedback);
+            submitButton.addEventListener('touchstart', handleSubmitTouch);
             
             // Results screen buttons
-            document.getElementById('continueButton').addEventListener('click', continueFeedback);
-            document.getElementById('restartButton').addEventListener('click', restartExperience);
+            const continueButton = document.getElementById('continueButton');
+            continueButton.addEventListener('click', continueFeedback);
+            continueButton.addEventListener('touchstart', handleContinueTouch);
+            
+            const restartButton = document.getElementById('restartButton');
+            restartButton.addEventListener('click', restartExperience);
+            restartButton.addEventListener('touchstart', handleRestartTouch);
+            
+            // Prevent default form submission
+            const feedbackForm = document.getElementById('feedbackForm');
+            feedbackForm.addEventListener('submit', function(e) {
+                e.preventDefault();
+                return false;
+            });
+            
+            // Prevent context menu on long press
+            document.addEventListener('contextmenu', function(e) {
+                if (gameStarted) {
+                    e.preventDefault();
+                    return false;
+                }
+            });
+            
+            // Prevent default touch behavior to avoid scrolling issues
+            document.addEventListener('touchmove', function(e) {
+                if (gameStarted) {
+                    e.preventDefault();
+                }
+            }, { passive: false });
+        }
+        
+        function clearEventListeners() {
+            // Helper function to remove and re-add event listeners
+            const removeListeners = (element, handlers) => {
+                if (!element) return;
+                for (const [event, handler] of Object.entries(handlers)) {
+                    element.removeEventListener(event, handler);
+                }
+            };
+            
+            // Clear specific elements that we're reattaching listeners to
+            removeListeners(document.getElementById('startButton'), {
+                'click': handleStartClick,
+                'touchstart': handleStartTouch
+            });
+            
+            removeListeners(document.getElementById('interactButton'), {
+                'click': handleInteractClick,
+                'touchstart': handleInteractTouch
+            });
+            
+            removeListeners(document.getElementById('helpButton'), {
+                'click': showHelp,
+                'touchstart': handleHelpTouch
+            });
+            
+            removeListeners(document.getElementById('closeHelp'), {
+                'click': hideHelp,
+                'touchstart': handleCloseHelpTouch
+            });
+            
+            removeListeners(document.getElementById('submitFeedback'), {
+                'click': submitFeedback,
+                'touchstart': handleSubmitTouch
+            });
+            
+            removeListeners(document.getElementById('continueButton'), {
+                'click': continueFeedback,
+                'touchstart': handleContinueTouch
+            });
+            
+            removeListeners(document.getElementById('restartButton'), {
+                'click': restartExperience,
+                'touchstart': handleRestartTouch
+            });
+        }
+        
+        // Touch handlers with prevent default
+        function handleStartTouch(e) {
+            e.preventDefault();
+            startExperience();
+        }
+        
+        function handleInteractTouch(e) {
+            e.preventDefault();
+            createInteraction();
+        }
+        
+        function handleHelpTouch(e) {
+            e.preventDefault();
+            showHelp();
+        }
+        
+        function handleCloseHelpTouch(e) {
+            e.preventDefault();
+            hideHelp();
+        }
+        
+        function handleSubmitTouch(e) {
+            e.preventDefault();
+            submitFeedback();
+        }
+        
+        function handleContinueTouch(e) {
+            e.preventDefault();
+            continueFeedback();
+        }
+        
+        function handleRestartTouch(e) {
+            e.preventDefault();
+            restartExperience();
+        }
+        
+        // Click handlers
+        function handleStartClick() {
+            startExperience();
+        }
+        
+        function handleInteractClick() {
+            createInteraction();
+        }
+        
+        function setupOptionButtons() {
+            // Get all option buttons
+            const optionButtons = document.querySelectorAll('.option-button');
+            
+            // Remove any existing listeners
+            optionButtons.forEach(button => {
+                button.removeEventListener('click', handleOptionClick);
+                button.removeEventListener('touchstart', handleOptionTouch);
+            });
+            
+            // Add new listeners
+            optionButtons.forEach(button => {
+                button.addEventListener('click', handleOptionClick);
+                button.addEventListener('touchstart', handleOptionTouch);
+            });
+        }
+        
+        function handleOptionClick(e) {
+            selectOption(this);
+        }
+        
+        function handleOptionTouch(e) {
+            e.preventDefault();
+            selectOption(this);
+        }
+        
+        function selectOption(button) {
+            // Find the group this button belongs to
+            const group = button.hasAttribute('data-dimension') ? 'dimension' : 
+                       button.hasAttribute('data-dimension2') ? 'dimension2' : 
+                       button.hasAttribute('data-emotion') ? 'emotion' : null;
+            
+            if (group) {
+                // Deselect other buttons in the same group
+                document.querySelectorAll(`.option-button[data-${group}]`).forEach(btn => {
+                    btn.classList.remove('selected');
+                });
+                
+                // Select this button
+                button.classList.add('selected');
+                
+                // Add haptic feedback if available
+                if (navigator.vibrate) {
+                    navigator.vibrate(50);
+                }
+            }
         }
         
         function startExperience() {
@@ -861,7 +1106,12 @@
         
         function createInteraction() {
             // Only proceed if game is started and not in feedback mode
-            if (!gameStarted || document.getElementById('feedbackOverlay').style.display === 'flex') return;
+            if (!gameStarted || 
+                document.getElementById('feedbackOverlay').style.display === 'flex' ||
+                document.getElementById('helpOverlay').style.display === 'flex' ||
+                document.getElementById('resultsOverlay').style.display === 'flex') {
+                return;
+            }
             
             // Play sound
             playSound();
@@ -901,20 +1151,23 @@
                 btn.classList.remove('selected');
             });
             document.getElementById('uncannySlider').value = 5;
+            
+            // Scroll to top to ensure form is visible
+            window.scrollTo(0, 0);
         }
         
         function submitFeedback() {
             // Get selected primary dimension
             const selectedDimension = document.querySelector('.option-button[data-dimension].selected');
-            const primaryDimension = selectedDimension ? selectedDimension.dataset.dimension : null;
+            const primaryDimension = selectedDimension ? selectedDimension.getAttribute('data-dimension') : null;
             
             // Get selected secondary dimension
             const selectedDimension2 = document.querySelector('.option-button[data-dimension2].selected');
-            const secondaryDimension = selectedDimension2 ? selectedDimension2.dataset.dimension2 : null;
+            const secondaryDimension = selectedDimension2 ? selectedDimension2.getAttribute('data-dimension2') : null;
             
             // Get selected emotion
             const selectedEmotion = document.querySelector('.option-button[data-emotion].selected');
-            const emotion = selectedEmotion ? selectedEmotion.dataset.emotion : null;
+            const emotion = selectedEmotion ? selectedEmotion.getAttribute('data-emotion') : null;
             
             // Get uncanny slider value
             const uncannyValue = parseInt(document.getElementById('uncannySlider').value);
@@ -944,6 +1197,9 @@
             
             // Show results
             showResults(feedback);
+            
+            // Scroll to top to ensure results are visible
+            window.scrollTo(0, 0);
         }
         
         function updateHumanPerception(feedback) {
@@ -1077,24 +1333,32 @@
             const audioElement = document.createElement('audio');
             audioElement.setAttribute('src', 'data:audio/mp3;base64,SUQzAwAAAAAAIlRJVDIAAAABAAAASVRTUwAAAAEAAABUQ09OAAAABAAAAE11c2ljLw==');
             audioElement.setAttribute('playsinline', 'true');
-            audioElement.play();
+            audioElement.play().catch(e => {
+                console.log('Audio unlock error:', e);
+            });
             
             // Create and play a silent oscillator
             if (window.audioContext) {
-                const oscillator = window.audioContext.createOscillator();
-                const gainNode = window.audioContext.createGain();
-                gainNode.gain.value = 0;
-                oscillator.connect(gainNode);
-                gainNode.connect(window.audioContext.destination);
-                oscillator.start(0);
-                oscillator.stop(0.001);
+                try {
+                    const oscillator = window.audioContext.createOscillator();
+                    const gainNode = window.audioContext.createGain();
+                    gainNode.gain.value = 0;
+                    oscillator.connect(gainNode);
+                    gainNode.connect(window.audioContext.destination);
+                    oscillator.start(0);
+                    oscillator.stop(0.001);
+                } catch (e) {
+                    console.log('Oscillator error:', e);
+                }
             }
         }
         
         function initSounds() {
             // Force audio context to start
             if (window.audioContext && window.audioContext.state === 'suspended') {
-                window.audioContext.resume();
+                window.audioContext.resume().catch(e => {
+                    console.log('AudioContext resume error:', e);
+                });
             }
             
             // Add a direct HTML5 audio for fallback
@@ -1106,8 +1370,12 @@
             
             // Try playing with p5.sound
             if (bulletSound && typeof bulletSound.play === 'function') {
-                bulletSound.play();
-                bulletSound.stop();
+                try {
+                    bulletSound.play();
+                    bulletSound.stop();
+                } catch (e) {
+                    console.log('p5.sound error:', e);
+                }
             }
             soundsLoaded = true;
             soundInitialized = true;
@@ -1163,7 +1431,9 @@
                 // Approach 1: Use p5.sound
                 if (soundsLoaded) {
                     if (window.audioContext && window.audioContext.state === 'suspended') {
-                        window.audioContext.resume();
+                        window.audioContext.resume().catch(e => {
+                            console.log('AudioContext resume error:', e);
+                        });
                     }
                     
                     if (bulletSound && typeof bulletSound.play === 'function') {
@@ -1174,15 +1444,19 @@
                 // Approach 2: Use direct HTML5 Audio API as fallback
                 if (window.backupAudio) {
                     window.backupAudio.currentTime = 0;
-                    window.backupAudio.play();
+                    window.backupAudio.play().catch(e => {
+                        console.log('Backup audio error:', e);
+                    });
                 }
                 
                 // Approach 3: Create a new Audio element each time
                 const audio = new Audio('sounds/Bulletsound.mp3');
-                audio.play();
+                audio.play().catch(e => {
+                    console.log('New audio element error:', e);
+                });
                 
             } catch (e) {
-                // Silent error handling
+                console.log('Sound play error:', e);
             }
         }
         
