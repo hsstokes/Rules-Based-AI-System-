@@ -115,6 +115,145 @@
         #soundButton:active {
             transform: translateX(-50%) scale(0.95);
         }
+        
+        /* New styles for feedback overlay */
+        #feedbackOverlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(245, 245, 247, 0.9);
+            display: none;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            z-index: 900;
+        }
+        
+        #feedbackTitle {
+            font-size: 22px;
+            margin-bottom: 20px;
+            color: #333;
+            text-align: center;
+        }
+        
+        #feedbackForm {
+            width: 80%;
+            max-width: 500px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        
+        .emotion-options {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            margin-bottom: 20px;
+            width: 100%;
+        }
+        
+        .emotion-option {
+            margin: 5px;
+            padding: 10px 15px;
+            background-color: transparent;
+            border: 1px solid #0066cc;
+            border-radius: 20px;
+            cursor: pointer;
+            font-family: 'Roboto Mono', monospace;
+            transition: all 0.2s ease;
+        }
+        
+        .emotion-option.selected {
+            background-color: #0066cc;
+            color: white;
+        }
+        
+        .slider-container {
+            width: 100%;
+            margin-bottom: 25px;
+        }
+        
+        .slider-label {
+            display: block;
+            margin-bottom: 10px;
+            text-align: center;
+        }
+        
+        .alignment-slider {
+            width: 100%;
+            -webkit-appearance: none;
+            height: 8px;
+            border-radius: 4px;
+            background: #d3d3d3;
+            outline: none;
+        }
+        
+        .alignment-slider::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background: #0066cc;
+            cursor: pointer;
+        }
+        
+        .slider-values {
+            display: flex;
+            justify-content: space-between;
+            width: 100%;
+            font-size: 12px;
+            color: #666;
+        }
+        
+        #submitFeedback {
+            padding: 10px 25px;
+            font-size: 16px;
+            background-color: #0066cc;
+            color: white;
+            border: none;
+            border-radius: 25px;
+            cursor: pointer;
+            font-family: 'Roboto Mono', monospace;
+            transition: all 0.3s ease;
+        }
+        
+        #submitFeedback:hover {
+            background-color: #0055aa;
+        }
+        
+        #submitFeedback:active {
+            transform: scale(0.98);
+        }
+        
+        /* Visualization panel */
+        #vizPanel {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            padding: 10px;
+            background-color: rgba(255, 255, 255, 0.8);
+            border-radius: 10px;
+            z-index: 800;
+            display: none;
+        }
+        
+        #vizToggle {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            padding: 5px 10px;
+            background-color: rgba(0, 102, 204, 0.7);
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            z-index: 801;
+            font-family: 'Roboto Mono', monospace;
+            display: none;
+        }
     </style>
 </head>
 <body>
@@ -130,7 +269,51 @@
     </div>
     <div id="soundButton">
         <img src="images/your-button-image.png" alt="Sound Button">
-    </div>       
+    </div>
+    
+    <!-- New feedback overlay -->
+    <div id="feedbackOverlay">
+        <div id="feedbackTitle">How did this sound make you feel?</div>
+        <form id="feedbackForm">
+            <div class="emotion-options">
+                <button type="button" class="emotion-option" data-emotion="calm">Calm</button>
+                <button type="button" class="emotion-option" data-emotion="anxious">Anxious</button>
+                <button type="button" class="emotion-option" data-emotion="curious">Curious</button>
+                <button type="button" class="emotion-option" data-emotion="confused">Confused</button>
+                <button type="button" class="emotion-option" data-emotion="joyful">Joyful</button>
+                <button type="button" class="emotion-option" data-emotion="melancholic">Melancholic</button>
+                <button type="button" class="emotion-option" data-emotion="unsettled">Unsettled</button>
+                <button type="button" class="emotion-option" data-emotion="inspired">Inspired</button>
+            </div>
+            
+            <div class="slider-container">
+                <label class="slider-label">How well did the sound match the emotion you selected?</label>
+                <input type="range" min="1" max="10" value="5" class="alignment-slider" id="alignmentSlider">
+                <div class="slider-values">
+                    <span>Misaligned</span>
+                    <span>Perfect Match</span>
+                </div>
+            </div>
+            
+            <div class="slider-container">
+                <label class="slider-label">Did this interaction feel "uncanny"?</label>
+                <input type="range" min="1" max="10" value="5" class="alignment-slider" id="uncannySlider">
+                <div class="slider-values">
+                    <span>Natural</span>
+                    <span>Deeply Uncanny</span>
+                </div>
+            </div>
+            
+            <button type="button" id="submitFeedback">Continue</button>
+        </form>
+    </div>
+    
+    <!-- Visualization panel -->
+    <button id="vizToggle">Show Results</button>
+    <div id="vizPanel">
+        <canvas id="resultsCanvas" width="300" height="200"></canvas>
+    </div>
+    
     <script>
         // Game variables
         let walkRight = [];
@@ -147,6 +330,13 @@
         // Canvas dimensions
         let W_WIDTH = 1920;
         let W_HEIGHT = 1920;
+        
+        // New feedback variables
+        let feedbackData = [];
+        let currentSoundType = "";
+        let showingFeedback = false;
+        let interactionCount = 0;
+        let soundTypes = ["calm", "anxious", "melancholic", "joyful", "unsettled"];
         
         // Player class
         class Player {
@@ -323,9 +513,14 @@
                 walkLeft.push(loadImage(`soldier/L${i}.png`));
             }
             
-            // Sound loading
+            // Sound loading - multiple sound options for different emotional states
             soundFormats('mp3');
             bulletSound = loadSound('sounds/Bulletsound.mp3');
+            
+            // Additional sounds would be loaded here
+            // calmSound = loadSound('sounds/calm.mp3');
+            // anxiousSound = loadSound('sounds/anxious.mp3');
+            // etc.
         }
         
         function setup() {
@@ -349,9 +544,9 @@
             canvas.parent('p5-container');
             
             // Make canvas clickable to trigger circles
-            canvas.mousePressed(createCircles);
+            canvas.mousePressed(handleCanvasClick);
             canvas.touchStarted(function() {
-                createCircles();
+                handleCanvasClick();
                 return false;
             });
             
@@ -366,27 +561,184 @@
             });
             
             // Sound button for mobiles
-            document.getElementById('soundButton').addEventListener('click', createCircles);
+            document.getElementById('soundButton').addEventListener('click', handleCanvasClick);
             document.getElementById('soundButton').addEventListener('touchstart', function(e) {
-                createCircles();
+                handleCanvasClick();
                 e.preventDefault();
             });
             
             // Add interaction to container div as well
-            document.getElementById('p5-container').addEventListener('click', createCircles);
+            document.getElementById('p5-container').addEventListener('click', handleCanvasClick);
             document.getElementById('p5-container').addEventListener('touchstart', function(e) {
                 // Only trigger if game has started and not from control buttons
-                if (gameStarted && e.target.id !== 'soundButton') {
-                    createCircles();
+                if (gameStarted && e.target.id !== 'soundButton' && !showingFeedback) {
+                    handleCanvasClick();
                     e.preventDefault();
                 }
             });
+            
+            // Set up feedback form
+            setupFeedbackForm();
+            
+            // Set up visualization toggle
+            document.getElementById('vizToggle').addEventListener('click', toggleVizPanel);
             
             frameRate(12); // Smoother framerate
             
             // Create AudioContext
             window.AudioContext = window.AudioContext || window.webkitAudioContext;
             window.audioContext = new AudioContext();
+        }
+        
+        function setupFeedbackForm() {
+            // Set up emotion option buttons
+            const emotionButtons = document.querySelectorAll('.emotion-option');
+            emotionButtons.forEach(button => {
+                button.addEventListener('click', function() {
+                    // Remove selected class from all buttons
+                    emotionButtons.forEach(btn => btn.classList.remove('selected'));
+                    // Add selected class to clicked button
+                    this.classList.add('selected');
+                });
+            });
+            
+            // Set up submit button
+            document.getElementById('submitFeedback').addEventListener('click', function() {
+                submitFeedback();
+            });
+        }
+        
+        function showFeedbackForm() {
+            showingFeedback = true;
+            document.getElementById('feedbackOverlay').style.display = 'flex';
+            document.getElementById('soundButton').style.display = 'none';
+        }
+        
+        function hideFeedbackForm() {
+            showingFeedback = false;
+            document.getElementById('feedbackOverlay').style.display = 'none';
+            document.getElementById('soundButton').style.display = 'flex';
+            
+            // Reset form
+            document.querySelectorAll('.emotion-option').forEach(btn => btn.classList.remove('selected'));
+            document.getElementById('alignmentSlider').value = 5;
+            document.getElementById('uncannySlider').value = 5;
+        }
+        
+        function submitFeedback() {
+            // Get selected emotion
+            const selectedButton = document.querySelector('.emotion-option.selected');
+            let selectedEmotion = selectedButton ? selectedButton.dataset.emotion : "none";
+            
+            // Get slider values
+            const alignmentValue = parseInt(document.getElementById('alignmentSlider').value);
+            const uncannyValue = parseInt(document.getElementById('uncannySlider').value);
+            
+            // Store feedback
+            feedbackData.push({
+                soundType: currentSoundType,
+                perceivedEmotion: selectedEmotion,
+                alignmentScore: alignmentValue,
+                uncannyScore: uncannyValue,
+                timestamp: new Date().toISOString()
+            });
+            
+            // Update visualization if it exists
+            updateVisualization();
+            
+            // Show visualization toggle after a few responses
+            if (feedbackData.length >= 3 && document.getElementById('vizToggle').style.display !== 'block') {
+                document.getElementById('vizToggle').style.display = 'block';
+            }
+            
+            // Hide feedback form
+            hideFeedbackForm();
+            
+            // For testing - log feedback data
+            console.log("Feedback data:", feedbackData);
+        }
+        
+        function toggleVizPanel() {
+            const vizPanel = document.getElementById('vizPanel');
+            if (vizPanel.style.display === 'block') {
+                vizPanel.style.display = 'none';
+            } else {
+                vizPanel.style.display = 'block';
+                updateVisualization();
+            }
+        }
+        
+        function updateVisualization() {
+            const canvas = document.getElementById('resultsCanvas');
+            if (!canvas) return;
+            
+            const ctx = canvas.getContext('2d');
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            
+            // Simple visualization - could be much more sophisticated
+            ctx.fillStyle = '#333';
+            ctx.font = '14px Roboto Mono';
+            ctx.fillText('Emotional Alignment by Sound Type', 10, 20);
+            
+            // Count responses by emotion and sound type
+            const emotions = ['calm', 'anxious', 'curious', 'confused', 'joyful', 'melancholic', 'unsettled', 'inspired'];
+            const soundCounts = {};
+            const alignmentBySound = {};
+            
+            soundTypes.forEach(type => {
+                soundCounts[type] = {};
+                alignmentBySound[type] = {total: 0, count: 0};
+                
+                emotions.forEach(emotion => {
+                    soundCounts[type][emotion] = 0;
+                });
+            });
+            
+            feedbackData.forEach(item => {
+                if (soundCounts[item.soundType] && soundCounts[item.soundType][item.perceivedEmotion]) {
+                    soundCounts[item.soundType][item.perceivedEmotion]++;
+                }
+                
+                if (alignmentBySound[item.soundType]) {
+                    alignmentBySound[item.soundType].total += item.alignmentScore;
+                    alignmentBySound[item.soundType].count++;
+                }
+            });
+            
+            // Draw simple bar chart of alignment scores
+            let y = 50;
+            const barHeight = 20;
+            const maxBarWidth = 150;
+            
+            for (const type in alignmentBySound) {
+                if (alignmentBySound[type].count > 0) {
+                    const avgScore = alignmentBySound[type].total / alignmentBySound[type].count;
+                    const barWidth = (avgScore / 10) * maxBarWidth;
+                    
+                    ctx.fillStyle = '#333';
+                    ctx.fillText(type, 10, y);
+                    
+                    ctx.fillStyle = getColorForSoundType(type);
+                    ctx.fillRect(100, y - 15, barWidth, barHeight);
+                    
+                    ctx.fillStyle = '#333';
+                    ctx.fillText(`${avgScore.toFixed(1)}/10`, 100 + barWidth + 5, y);
+                    
+                    y += 35;
+                }
+            }
+        }
+        
+        function getColorForSoundType(type) {
+            const colors = {
+                'calm': 'rgba(100, 149, 237, 0.7)',
+                'anxious': 'rgba(255, 99, 71, 0.7)',
+                'melancholic': 'rgba(123, 104, 238, 0.7)',
+                'joyful': 'rgba(50, 205, 50, 0.7)',
+                'unsettled': 'rgba(255, 165, 0, 0.7)'
+            };
+            
+            return colors[type] || 'rgba(128, 128, 128, 0.7)';
         }
         
         function hideControls() {
@@ -417,6 +769,24 @@
             
             // Start the game
             gameStarted = true;
+        }
+        
+        // Function to handle canvas clicks
+        function handleCanvasClick() {
+            // Only proceed if game is started and not showing feedback
+            if (!gameStarted || showingFeedback) return;
+            
+            // Create interaction
+            createCircles();
+            
+            // Increment interaction count
+            interactionCount++;
+            
+            // After every 2-3 interactions, show feedback form
+            if (interactionCount % 3 === 0) {
+                // Wait a moment for the sound to finish
+                setTimeout(showFeedbackForm, 1000);
+            }
         }
         
         // Function to unlock audio on iOS
@@ -465,35 +835,73 @@
             // Only proceed if game is started
             if (!gameStarted) return;
             
+            // Choose a random sound type for this interaction
+            currentSoundType = soundTypes[Math.floor(Math.random() * soundTypes.length)];
+            
             // Make multiple attempts to play sound
-            playSound();
+            playSound(currentSoundType);
             
             // Create multiple beautiful random circles
             const numCircles = random(5, 12); // More circles
             const centerX = soldier.x + soldier.width / 2;
             const centerY = soldier.y + soldier.height / 2;
             
+            // Set color scheme based on sound type
+            let circleColor;
+            
+            // Map sound types to color schemes
+            switch(currentSoundType) {
+                case 'calm':
+                    // Blues and soft purples
+                    circleColor = color(
+                        random(50, 100),
+                        random(100, 150),
+                        random(200, 255)
+                    );
+                    break;
+                case 'anxious':
+                    // Reds and oranges
+                    circleColor = color(
+                        random(200, 255),
+                        random(50, 100),
+                        random(0, 50)
+                    );
+                    break;
+                case 'melancholic':
+                    // Purples and deep blues
+                    circleColor = color(
+                        random(100, 150),
+                        random(50, 100),
+                        random(180, 230)
+                    );
+                    break;
+                case 'joyful':
+                    // Yellows and greens
+                    circleColor = color(
+                        random(200, 255),
+                        random(200, 255),
+                        random(0, 100)
+                    );
+                    break;
+                case 'unsettled':
+                    // Discordant greens and purples
+                    circleColor = color(
+                        random(100, 150),
+                        random(180, 230),
+                        random(100, 150)
+                    );
+                    break;
+                default:
+                    // Default random colors
+                    circleColor = color(
+                        random(0, 255),
+                        random(0, 255),
+                        random(0, 255)
+                    );
+            }
+            
             for (let i = 0; i < numCircles; i++) {
                 const size = random(7, 16); // Larger initial size
-                
-                 // Randomly choose between blue and red colors
-                 let circleColor;
-
-                if (random() < 0.5) { // 50% chance of blue
-                    // Blue colors (low red, low green, high blue)
-                    circleColor = color(
-                        random(0, 50),  // low red
-                        random(0, 100), // low green
-                        random(200, 255)  // high blue
-                    );
-                } else { // 50% chance of red
-                    // Red colors (high red, low green, low blue)
-                    circleColor = color(
-                        random(200, 255), // high red
-                        random(0, 50),    // low green
-                        random(0, 50)     // low blue
-                    );
-                }
                 
                 bullets.push(new Projectile(
                     centerX + random(-15, 15),
@@ -511,9 +919,12 @@
             soldier.last_direction = soldier.last_direction === "right" ? "left" : "right";
         }
         
-        function playSound() {
+        function playSound(soundType) {
             // Multiple approaches to try to play sound
             try {
+                // In a real implementation, you would select different sounds based on soundType
+                // For now, we'll just use the bulletSound for demonstration
+                
                 // Approach 1: Use p5.sound
                 if (soundsLoaded) {
                     if (window.audioContext && window.audioContext.state === 'suspended') {
@@ -543,8 +954,8 @@
         // KEYBOARD CONTROL HANDLERS - Simplified to just spacebar
         function keyPressed() {
             if (keyCode === 32) { // Space key
-                if (gameStarted && shoot === 0) {
-                    createCircles();
+                if (gameStarted && shoot === 0 && !showingFeedback) {
+                    handleCanvasClick();
                     if (document.getElementById('soundButton')) {
                         document.getElementById('soundButton').classList.add('active');
                     }
