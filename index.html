@@ -79,8 +79,6 @@
             font-family: 'Roboto Mono', monospace;
             transition: all 0.3s ease;
             letter-spacing: 1px;
-            -webkit-tap-highlight-color: rgba(0,0,0,0);
-            touch-action: manipulation;
         }
         
         #startButton:hover {
@@ -106,7 +104,6 @@
             align-items: center;
             z-index: 100;
             cursor: pointer;
-            -webkit-tap-highlight-color: rgba(0,0,0,0);
         }
         
         #soundButton img {
@@ -117,244 +114,6 @@
         
         #soundButton:active {
             transform: translateX(-50%) scale(0.95);
-        }
-        
-        /* Feedback overlay - SIMPLIFIED */
-        #feedbackOverlay {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background-color: rgba(245, 245, 247, 0.95);
-            display: none;
-            flex-direction: column;
-            justify-content: flex-start;
-            align-items: center;
-            z-index: 900;
-            overflow-y: auto;
-            padding: 20px 0 100px 0;
-        }
-        
-        #feedbackTitle {
-            font-size: 20px;
-            margin: 20px 0;
-            color: #333;
-            text-align: center;
-        }
-        
-        #feedbackForm {
-            width: 90%;
-            max-width: 500px;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-        }
-        
-        .emotion-options {
-            display: flex;
-            flex-wrap: wrap;
-            justify-content: center;
-            margin-bottom: 20px;
-            width: 100%;
-        }
-        
-        .emotion-option {
-            margin: 5px;
-            padding: 12px 16px;
-            background-color: transparent;
-            border: 1px solid #0066cc;
-            border-radius: 20px;
-            cursor: pointer;
-            font-family: 'Roboto Mono', monospace;
-            transition: all 0.2s ease;
-            -webkit-tap-highlight-color: rgba(0, 102, 204, 0.3);
-            touch-action: manipulation;
-        }
-        
-        .emotion-option.selected {
-            background-color: #0066cc;
-            color: white;
-        }
-        
-        .slider-container {
-            width: 100%;
-            margin-bottom: 25px;
-        }
-        
-        .slider-label {
-            display: block;
-            margin-bottom: 15px;
-            text-align: center;
-        }
-        
-        .alignment-slider {
-            width: 100%;
-            -webkit-appearance: none;
-            height: 25px;
-            border-radius: 4px;
-            background: #d3d3d3;
-            outline: none;
-            margin-bottom: 15px;
-        }
-        
-        .alignment-slider::-webkit-slider-thumb {
-            -webkit-appearance: none;
-            appearance: none;
-            width: 30px;
-            height: 30px;
-            border-radius: 50%;
-            background: #0066cc;
-            cursor: pointer;
-        }
-        
-        .slider-values {
-            display: flex;
-            justify-content: space-between;
-            width: 100%;
-            font-size: 12px;
-            color: #666;
-        }
-        
-        #submitFeedback {
-            padding: 15px 30px;
-            font-size: 18px;
-            background-color: #0066cc;
-            color: white;
-            border: none;
-            border-radius: 25px;
-            cursor: pointer;
-            font-family: 'Roboto Mono', monospace;
-            transition: all 0.3s ease;
-            min-width: 180px;
-            margin: 20px 0 40px 0;
-            touch-action: manipulation;
-            -webkit-tap-highlight-color: rgba(0,0,0,0);
-        }
-        
-        #submitFeedback:hover {
-            background-color: #0055aa;
-        }
-        
-        #submitFeedback:active {
-            transform: scale(0.98);
-        }
-        
-        /* Visualization panel - SIMPLIFIED */
-        #vizPanel {
-            position: absolute;
-            top: 10px;
-            right: 10px;
-            padding: 15px;
-            background-color: rgba(255, 255, 255, 0.9);
-            border-radius: 10px;
-            z-index: 800;
-            display: none;
-            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-            max-width: 90%;
-            width: 320px;
-            max-height: 80vh;
-            overflow-y: auto;
-        }
-        
-        #vizToggle {
-            position: absolute;
-            top: 10px;
-            right: 10px;
-            padding: 8px 12px;
-            background-color: rgba(0, 102, 204, 0.7);
-            color: white;
-            border: none;
-            border-radius: 5px;
-            cursor: pointer;
-            z-index: 801;
-            font-family: 'Roboto Mono', monospace;
-            display: none;
-            touch-action: manipulation;
-            -webkit-tap-highlight-color: rgba(0,0,0,0);
-        }
-        
-        /* Framework visualization elements */
-        .dimension-container {
-            margin-bottom: 15px;
-            border-bottom: 1px solid #eee;
-            padding-bottom: 15px;
-        }
-        
-        .dimension-title {
-            font-size: 14px;
-            font-weight: bold;
-            margin-bottom: 8px;
-        }
-        
-        .dimension-scale {
-            height: 15px;
-            width: 100%;
-            background: linear-gradient(to right, #3498db, #e74c3c);
-            border-radius: 3px;
-            position: relative;
-            margin: 8px 0;
-        }
-        
-        .dimension-labels {
-            display: flex;
-            justify-content: space-between;
-            font-size: 11px;
-            color: #666;
-        }
-        
-        .dimension-marker {
-            position: absolute;
-            width: 8px;
-            height: 20px;
-            background-color: #333;
-            border-radius: 2px;
-            top: -2px;
-            transform: translateX(-50%);
-        }
-        
-        /* Mode selector - SIMPLIFIED */
-        #modeSelector {
-            position: absolute;
-            bottom: 20px;
-            right: 20px;
-            background-color: rgba(255, 255, 255, 0.8);
-            border-radius: 30px;
-            padding: 5px;
-            display: none;
-            z-index: 500;
-        }
-        
-        .mode-button {
-            border: none;
-            border-radius: 25px;
-            padding: 8px 15px;
-            margin: 0 5px;
-            font-family: 'Roboto Mono', monospace;
-            font-size: 12px;
-            cursor: pointer;
-            transition: all 0.3s;
-            outline: none;
-        }
-        
-        .mode-button.active {
-            background-color: #0066cc;
-            color: white;
-        }
-        
-        /* Simple popup message */
-        #messagePopup {
-            position: fixed;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            background-color: rgba(0, 0, 0, 0.8);
-            color: white;
-            padding: 15px 20px;
-            border-radius: 10px;
-            font-size: 16px;
-            z-index: 1000;
-            display: none;
         }
     </style>
 </head>
@@ -371,117 +130,7 @@
     </div>
     <div id="soundButton">
         <img src="images/your-button-image.png" alt="Sound Button">
-    </div>
-    
-    <!-- Simplified feedback overlay -->
-    <div id="feedbackOverlay">
-        <div id="feedbackTitle">How did this sound make you feel?</div>
-        <form id="feedbackForm">
-            <div class="emotion-options">
-                <button type="button" class="emotion-option" data-emotion="analytical">Analytical</button>
-                <button type="button" class="emotion-option" data-emotion="embodied">Embodied</button>
-                <button type="button" class="emotion-option" data-emotion="temporal">Temporal</button>
-                <button type="button" class="emotion-option" data-emotion="atemporal">Atemporal</button>
-                <button type="button" class="emotion-option" data-emotion="contextual">Contextual</button>
-                <button type="button" class="emotion-option" data-emotion="decontextualized">Decontextualized</button>
-                <button type="button" class="emotion-option" data-emotion="intuitive">Intuitive</button>
-                <button type="button" class="emotion-option" data-emotion="computational">Computational</button>
-            </div>
-            
-            <div class="slider-container">
-                <label class="slider-label">How well did the sound match the emotion you selected?</label>
-                <input type="range" min="1" max="10" value="5" class="alignment-slider" id="alignmentSlider">
-                <div class="slider-values">
-                    <span>Misaligned</span>
-                    <span>Perfect Match</span>
-                </div>
-            </div>
-            
-            <div class="slider-container">
-                <label class="slider-label">Did this interaction feel "uncanny"?</label>
-                <input type="range" min="1" max="10" value="5" class="alignment-slider" id="uncannySlider">
-                <div class="slider-values">
-                    <span>Natural</span>
-                    <span>Deeply Uncanny</span>
-                </div>
-            </div>
-            
-            <button type="button" id="submitFeedback">Continue</button>
-        </form>
-    </div>
-    
-    <!-- Visualization panel -->
-    <button id="vizToggle">View Empathy Framework</button>
-    <div id="vizPanel">
-        <h3 style="margin-top: 0; font-size: 16px;">Dimensional Empathy Framework</h3>
-        
-        <!-- Analytical vs Embodied -->
-        <div class="dimension-container">
-            <div class="dimension-title">Analytical ↔ Embodied</div>
-            <div class="dimension-scale">
-                <div class="dimension-marker" id="marker-analytical" style="left: 25%;"></div>
-            </div>
-            <div class="dimension-labels">
-                <span>Analytical</span>
-                <span>Embodied</span>
-            </div>
-        </div>
-        
-        <!-- Temporal vs Atemporal -->
-        <div class="dimension-container">
-            <div class="dimension-title">Temporal ↔ Atemporal</div>
-            <div class="dimension-scale">
-                <div class="dimension-marker" id="marker-temporal" style="left: 25%;"></div>
-            </div>
-            <div class="dimension-labels">
-                <span>Temporal</span>
-                <span>Atemporal</span>
-            </div>
-        </div>
-        
-        <!-- Contextual vs Decontextualized -->
-        <div class="dimension-container">
-            <div class="dimension-title">Contextual ↔ Decontextualized</div>
-            <div class="dimension-scale">
-                <div class="dimension-marker" id="marker-contextual" style="left: 25%;"></div>
-            </div>
-            <div class="dimension-labels">
-                <span>Contextual</span>
-                <span>Decontextualized</span>
-            </div>
-        </div>
-        
-        <!-- Intuitive vs Computational -->
-        <div class="dimension-container">
-            <div class="dimension-title">Intuitive ↔ Computational</div>
-            <div class="dimension-scale">
-                <div class="dimension-marker" id="marker-intuitive" style="left: 25%;"></div>
-            </div>
-            <div class="dimension-labels">
-                <span>Intuitive</span>
-                <span>Computational</span>
-            </div>
-        </div>
-        
-        <div id="resultsContainer">
-            <h4 style="font-size: 14px; margin-bottom: 10px;">Response Summary</h4>
-            <div id="responseCount">Interactions: 0</div>
-            <div id="uncannyScore">Average Uncanny Score: -</div>
-            <div id="alignmentScore">Average Alignment: -</div>
-            <div id="currentMode" style="margin-top: 10px; font-size: 12px; color: #666;">Mode: Rules-Based AI</div>
-        </div>
-    </div>
-    
-    <!-- Simplified mode selector -->
-    <div id="modeSelector">
-        <button class="mode-button active" data-mode="rules-based-ai">Rules-Based</button>
-        <button class="mode-button" data-mode="analytical">Analytical</button>
-        <button class="mode-button" data-mode="computational">Computational</button>
-    </div>
-    
-    <!-- Message popup for feedback -->
-    <div id="messagePopup"></div>
-    
+    </div>       
     <script>
         // Game variables
         let walkRight = [];
@@ -498,79 +147,6 @@
         // Canvas dimensions
         let W_WIDTH = 1920;
         let W_HEIGHT = 1920;
-        
-        // Feedback variables
-        let feedbackData = [];
-        let showingFeedback = false;
-        let interactionCount = 0;
-        
-        // Current mode
-        let currentMode = "rules-based-ai";
-        
-        // Framework dimensions with initial values (AI perspective)
-        let framework = {
-            analytical: 0.75, // 0 = analytical, 1 = embodied
-            temporal: 0.25,   // 0 = temporal, 1 = atemporal
-            contextual: 0.25, // 0 = contextual, 1 = decontextualized
-            intuitive: 0.15   // 0 = intuitive, 1 = computational
-        };
-        
-        // Human perception (will be updated based on feedback)
-        let humanPerception = {
-            analytical: 0.5,
-            temporal: 0.5,
-            contextual: 0.5,
-            intuitive: 0.5
-        };
-        
-        // Define the mode presets
-        const modePresets = {
-            "rules-based-ai": {
-                colors: {
-                    primary: {r: [0, 50], g: [0, 100], b: [200, 255]}, // Blue
-                    secondary: {r: [200, 255], g: [0, 50], b: [0, 50]}  // Red
-                },
-                framework: {
-                    analytical: 0.75,
-                    temporal: 0.25,
-                    contextual: 0.25,
-                    intuitive: 0.15
-                },
-                effectType: 0,
-                movementType: "random",
-                soundFile: "sounds/Bulletsound.mp3"
-            },
-            "analytical": {
-                colors: {
-                    primary: {r: [0, 50], g: [50, 150], b: [150, 200]}, // Blue-green
-                    secondary: null
-                },
-                framework: {
-                    analytical: 0.1, // Very analytical
-                    temporal: 0.4,
-                    contextual: 0.5,
-                    intuitive: 0.6
-                },
-                effectType: 1,
-                movementType: "angular",
-                soundFile: "sounds/Bulletsound.mp3"
-            },
-            "computational": {
-                colors: {
-                    primary: {r: [200, 255], g: [50, 100], b: [50, 100]}, // Red
-                    secondary: null
-                },
-                framework: {
-                    analytical: 0.5,
-                    temporal: 0.6,
-                    contextual: 0.7,
-                    intuitive: 0.9 // Very computational
-                },
-                effectType: 2,
-                movementType: "sequential",
-                soundFile: "sounds/Bulletsound.mp3"
-            }
-        };
         
         // Player class
         class Player {
@@ -634,71 +210,35 @@
         
         // Rectangle grid effect (modified from circles)
         class Projectile {
-            constructor(x, y, radius, colour, direction, effectType, movementType) {
+            constructor(x, y, radius, colour, direction) {
                 this.x = x;
                 this.y = y;
                 this.radius = radius;
                 this.colour = colour;
                 this.direction = direction;
-                this.effectType = effectType !== undefined ? effectType : floor(random(3));
-                this.movementType = movementType || "random";
                 
-                // Set up movement based on type
-                if (this.movementType === "random") {
-                    // Random velocity components
-                    const angle = random(0, TWO_PI);
-                    const speed = random(2, 8);
-                    this.velX = speed * cos(angle);
-                    this.velY = speed * sin(angle);
-                } else if (this.movementType === "angular") {
-                    // Angular movement
-                    const angle = random([0, PI/2, PI, 3*PI/2]); // Only 0, 90, 180, 270 degrees
-                    const speed = random(3, 6);
-                    this.velX = speed * cos(angle);
-                    this.velY = speed * sin(angle);
-                } else if (this.movementType === "sequential") {
-                    // Sequential movement
-                    this.moveStep = 0;
-                    this.moveSequence = [
-                        {x: 4, y: 0}, {x: 0, y: 4}, {x: -4, y: 0}, {x: 0, y: -4}
-                    ];
-                    this.moveTimer = 0;
-                    this.moveInterval = floor(random(10, 20));
-                    this.velX = this.moveSequence[0].x;
-                    this.velY = this.moveSequence[0].y;
-                } else {
-                    // Default movement
-                    const angle = random(0, TWO_PI);
-                    const speed = random(2, 8);
-                    this.velX = speed * cos(angle);
-                    this.velY = speed * sin(angle);
-                }
+                // Random velocity components
+                const angle = random(0, TWO_PI);
+                const speed = random(2, 8);
+                this.velX = speed * cos(angle);
+                this.velY = speed * sin(angle);
                 
                 // Random lifetime
                 this.lifetime = random(30, 120);
                 this.age = 0;
                 this.growing = true;
-                this.maxRadius = radius * random(3, 8);
+                this.maxRadius = radius * random(3, 8); // Larger shapes
                 
-                // Rotation properties
+                // NEW: Add rotation for rectangles
                 this.rotation = random(TWO_PI);
                 this.rotationSpeed = random(-0.05, 0.05);
+                
+                // NEW: Choose effect type (0 = single rect, 1 = grid, 2 = layered)
+                this.effectType = floor(random(3));
             }
             
             draw() {
-                // Handle special movement types
-                if (this.movementType === "sequential") {
-                    // Sequential movement
-                    this.moveTimer++;
-                    if (this.moveTimer >= this.moveInterval) {
-                        this.moveTimer = 0;
-                        this.moveStep = (this.moveStep + 1) % this.moveSequence.length;
-                        this.velX = this.moveSequence[this.moveStep].x;
-                        this.velY = this.moveSequence[this.moveStep].y;
-                    }
-                }
-                
-                // Standard drawing code
+                // NEW: Add rotation transformation
                 push();
                 translate(this.x, this.y);
                 rotate(this.rotation);
@@ -708,7 +248,7 @@
                 const alpha = map(this.age, 0, this.lifetime, 255, 0);
                 fill(red(this.colour), green(this.colour), blue(this.colour), alpha);
                 
-                // Draw rectangles based on effect type
+                // MODIFIED: Draw rectangles based on effect type
                 this.drawRectEffect(0, 0, this.radius);
                 
                 pop();
@@ -717,12 +257,12 @@
                 this.x += this.velX;
                 this.y += this.velY;
                 
-                // Update rotation
+                // NEW: Update rotation
                 this.rotation += this.rotationSpeed;
                 
                 // Update size - faster growth
                 if (this.growing) {
-                    this.radius += 0.4;
+                    this.radius += 0.4; // Faster growth
                     if (this.radius >= this.maxRadius) {
                         this.growing = false;
                     }
@@ -734,7 +274,7 @@
                 this.age++;
             }
             
-            // Method to draw rectangle effects
+            // MODIFIED: Method to draw rectangle effects
             drawRectEffect(x, y, radius) {
                 rectMode(CENTER);
                 
@@ -808,373 +348,53 @@
             canvas = createCanvas(canvasWidth, canvasHeight);
             canvas.parent('p5-container');
             
-            // Improve mobile interaction for canvas
-            canvas.mousePressed(handleCanvasClick);
+            // Make canvas clickable to trigger circles
+            canvas.mousePressed(createCircles);
             canvas.touchStarted(function() {
-                handleCanvasClick();
+                createCircles();
                 return false;
             });
             
             // Create character  
             soldier = new Player(width/2 - 245, height/2 - 245, 490, 490);
             
-            // Set up start button with improved mobile handling
+            // Set up start button
             document.getElementById('startButton').addEventListener('click', startGame);
-            document.getElementById('startButton').addEventListener('touchend', function(e) {
-                e.preventDefault();
+            document.getElementById('startButton').addEventListener('touchstart', function(e) {
                 startGame();
+                e.preventDefault();
             });
             
             // Sound button for mobiles
-            document.getElementById('soundButton').addEventListener('click', handleCanvasClick);
-            document.getElementById('soundButton').addEventListener('touchend', function(e) {
+            document.getElementById('soundButton').addEventListener('click', createCircles);
+            document.getElementById('soundButton').addEventListener('touchstart', function(e) {
+                createCircles();
                 e.preventDefault();
-                handleCanvasClick();
             });
             
             // Add interaction to container div as well
-            document.getElementById('p5-container').addEventListener('click', handleCanvasClick);
-            document.getElementById('p5-container').addEventListener('touchend', function(e) {
+            document.getElementById('p5-container').addEventListener('click', createCircles);
+            document.getElementById('p5-container').addEventListener('touchstart', function(e) {
                 // Only trigger if game has started and not from control buttons
-                if (gameStarted && e.target.id !== 'soundButton' && !showingFeedback) {
-                    handleCanvasClick();
+                if (gameStarted && e.target.id !== 'soundButton') {
+                    createCircles();
                     e.preventDefault();
                 }
             });
-            
-            // Set up feedback form
-            setupFeedbackForm();
-            
-            // Set up visualization toggle
-            document.getElementById('vizToggle').addEventListener('click', toggleVizPanel);
-            document.getElementById('vizToggle').addEventListener('touchend', function(e) {
-                e.preventDefault();
-                toggleVizPanel();
-            });
-            
-            // Set up mode selector
-            setupModeSelector();
-            
-            // Update framework visualization
-            updateFrameworkVisualization();
             
             frameRate(12); // Smoother framerate
             
             // Create AudioContext
             window.AudioContext = window.AudioContext || window.webkitAudioContext;
             window.audioContext = new AudioContext();
-            
-            // Prevent default touch behavior across the app
-            document.addEventListener('touchmove', function(e) {
-                // Prevent scrolling when in the game
-                if (gameStarted) {
-                    e.preventDefault();
-                }
-            }, { passive: false });
-        }
-        
-        function setupFeedbackForm() {
-            // Set up emotion option buttons with improved mobile handling
-            const emotionButtons = document.querySelectorAll('.emotion-option');
-            
-            emotionButtons.forEach(button => {
-                // Use both click and touchend events for better mobile response
-                const selectEmotion = function(e) {
-                    e.preventDefault(); // Prevent default behavior
-                    
-                    // Remove selected class from all buttons
-                    emotionButtons.forEach(btn => btn.classList.remove('selected'));
-                    
-                    // Add selected class to clicked button
-                    this.classList.add('selected');
-                    
-                    // Add vibration feedback if available
-                    if (navigator.vibrate) {
-                        navigator.vibrate(50);
-                    }
-                };
-                
-                // Add both event listeners
-                button.addEventListener('click', selectEmotion);
-                button.addEventListener('touchend', selectEmotion);
-            });
-            
-            // Set up submit button with improved mobile handling
-            const submitButton = document.getElementById('submitFeedback');
-            
-            const handleSubmit = function(e) {
-                e.preventDefault(); // Prevent default behavior
-                
-                // Add vibration feedback if available
-                if (navigator.vibrate) {
-                    navigator.vibrate(100);
-                }
-                
-                submitFeedback();
-            };
-            
-            // Add both event listeners to submit button
-            submitButton.addEventListener('click', handleSubmit);
-            submitButton.addEventListener('touchend', handleSubmit);
-            
-            // Add an additional close method for mobile (tap outside the form)
-            const overlay = document.getElementById('feedbackOverlay');
-            const form = document.getElementById('feedbackForm');
-            
-            const closeOnTapOutside = function(e) {
-                // If user taps outside the form but on the overlay, close it
-                if (e.target === overlay) {
-                    hideFeedbackForm();
-                }
-            };
-            
-            overlay.addEventListener('click', closeOnTapOutside);
-            overlay.addEventListener('touchend', closeOnTapOutside);
-        }
-        
-        function setupModeSelector() {
-            const modeButtons = document.querySelectorAll('.mode-button');
-            
-            modeButtons.forEach(button => {
-                const handleModeSelect = function(e) {
-                    e.preventDefault();
-                    const newMode = this.getAttribute('data-mode');
-                    changeMode(newMode);
-                    
-                    // Update active button
-                    modeButtons.forEach(btn => btn.classList.remove('active'));
-                    this.classList.add('active');
-                    
-                    // Vibration feedback
-                    if (navigator.vibrate) {
-                        navigator.vibrate(50);
-                    }
-                    
-                    // Show a message about the mode change
-                    showMessage(`Changed to ${newMode.replace(/-/g, ' ')} mode`);
-                };
-                
-                button.addEventListener('click', handleModeSelect);
-                button.addEventListener('touchend', handleModeSelect);
-            });
-        }
-        
-        function showMessage(text, duration = 2000) {
-            const popup = document.getElementById('messagePopup');
-            popup.textContent = text;
-            popup.style.display = 'block';
-            
-            setTimeout(() => {
-                popup.style.display = 'none';
-            }, duration);
-        }
-        
-        function showFeedbackForm() {
-            showingFeedback = true;
-            document.getElementById('feedbackOverlay').style.display = 'flex';
-            document.getElementById('soundButton').style.display = 'none';
-            document.getElementById('modeSelector').style.display = 'none';
-            
-            // For mobile: ensure the overlay is properly positioned and scroll to top
-            window.scrollTo(0, 0);
-            
-            // Disable background scrolling when feedback is shown
-            document.body.style.overflow = 'hidden';
-        }
-        
-        function hideFeedbackForm() {
-            showingFeedback = false;
-            document.getElementById('feedbackOverlay').style.display = 'none';
-            document.getElementById('soundButton').style.display = 'flex';
-            document.getElementById('modeSelector').style.display = 'flex';
-            
-            // Re-enable scrolling
-            document.body.style.overflow = '';
-            
-            // Reset form
-            document.querySelectorAll('.emotion-option').forEach(btn => btn.classList.remove('selected'));
-            document.getElementById('alignmentSlider').value = 5;
-            document.getElementById('uncannySlider').value = 5;
-        }
-        
-        function submitFeedback() {
-            // Get selected emotion
-            const selectedButton = document.querySelector('.emotion-option.selected');
-            let selectedEmotion = selectedButton ? selectedButton.dataset.emotion : "none";
-            
-            // Get slider values - ensure they're stored as numbers
-            const alignmentValue = Number(document.getElementById('alignmentSlider').value);
-            const uncannyValue = Number(document.getElementById('uncannySlider').value);
-            
-            // Store feedback with proper number types
-            feedbackData.push({
-                mode: currentMode,
-                perceivedEmotion: selectedEmotion,
-                alignmentScore: alignmentValue,
-                uncannyScore: uncannyValue,
-                timestamp: new Date().toISOString()
-            });
-            
-            // Log the feedback to verify it's stored correctly
-            console.log("New feedback added:", feedbackData[feedbackData.length - 1]);
-            
-            // Update human perception based on feedback
-            updateHumanPerception(selectedEmotion);
-            
-            // Update framework to reflect human perception somewhat
-            adaptFrameworkToHumanPerception();
-            
-            // Update visualization
-            updateFrameworkVisualization();
-            
-            // Show visualization toggle after a few responses
-            if (feedbackData.length >= 3 && document.getElementById('vizToggle').style.display !== 'block') {
-                document.getElementById('vizToggle').style.display = 'block';
-            }
-            
-            // Show mode selector after feedback
-            if (feedbackData.length >= 2 && document.getElementById('modeSelector').style.display !== 'flex') {
-                document.getElementById('modeSelector').style.display = 'flex';
-            }
-            
-            // Hide feedback form
-            hideFeedbackForm();
-            
-            // For testing - log feedback data
-            console.log("All feedback data:", feedbackData);
-            
-            // Calculate and log current mode's average scores
-            const modeData = feedbackData.filter(item => item.mode === currentMode);
-            if (modeData.length > 0) {
-                const avgUncanny = modeData.reduce((sum, item) => sum + item.uncannyScore, 0) / modeData.length;
-                const avgAlignment = modeData.reduce((sum, item) => sum + item.alignmentScore, 0) / modeData.length;
-                console.log(`Current mode (${currentMode}) scores - Uncanny: ${avgUncanny.toFixed(1)}, Alignment: ${avgAlignment.toFixed(1)}`);
-            }
-        }
-        
-        function updateHumanPerception(emotion) {
-            // Map the selected emotion to framework dimensions
-            switch(emotion) {
-                case "analytical":
-                    humanPerception.analytical = 0.1; // Very analytical
-                    break;
-                case "embodied":
-                    humanPerception.analytical = 0.9; // Very embodied
-                    break;
-                case "temporal":
-                    humanPerception.temporal = 0.1; // Very temporal
-                    break;
-                case "atemporal":
-                    humanPerception.temporal = 0.9; // Very atemporal
-                    break;
-                case "contextual":
-                    humanPerception.contextual = 0.1; // Very contextual
-                    break;
-                case "decontextualized":
-                    humanPerception.contextual = 0.9; // Very decontextualized
-                    break;
-                case "intuitive":
-                    humanPerception.intuitive = 0.1; // Very intuitive
-                    break;
-                case "computational":
-                    humanPerception.intuitive = 0.9; // Very computational
-                    break;
-            }
-        }
-        
-        function adaptFrameworkToHumanPerception() {
-            // Gradually shift framework values toward human perception
-            const adaptationRate = 0.2; // How quickly the system adapts
-            
-            framework.analytical += (humanPerception.analytical - framework.analytical) * adaptationRate;
-            framework.temporal += (humanPerception.temporal - framework.temporal) * adaptationRate;
-            framework.contextual += (humanPerception.contextual - framework.contextual) * adaptationRate;
-            framework.intuitive += (humanPerception.intuitive - framework.intuitive) * adaptationRate;
-            
-            // Update visualization if visible
-            if (document.getElementById('vizPanel').style.display === 'block') {
-                updateFrameworkVisualization();
-            }
-        }
-        
-        function toggleVizPanel() {
-            const vizPanel = document.getElementById('vizPanel');
-            if (vizPanel.style.display === 'block') {
-                vizPanel.style.display = 'none';
-            } else {
-                vizPanel.style.display = 'block';
-                updateFrameworkVisualization();
-            }
-        }
-        
-        function updateFrameworkVisualization() {
-            // Update markers based on current framework values
-            document.getElementById('marker-analytical').style.left = `${framework.analytical * 100}%`;
-            document.getElementById('marker-temporal').style.left = `${framework.temporal * 100}%`;
-            document.getElementById('marker-contextual').style.left = `${framework.contextual * 100}%`;
-            document.getElementById('marker-intuitive').style.left = `${framework.intuitive * 100}%`;
-            
-            // Update the current mode display
-            document.getElementById('currentMode').textContent = `Mode: ${currentMode.replace(/-/g, ' ')}`;
-            
-            // Update summary statistics
-            if (feedbackData.length > 0) {
-                // Filter feedback for current mode
-                const relevantFeedback = feedbackData.filter(item => item.mode === currentMode);
-                
-                if (relevantFeedback.length > 0) {
-                    // Calculate averages for the current mode only
-                    let totalUncanny = 0;
-                    let totalAlignment = 0;
-                    
-                    relevantFeedback.forEach(item => {
-                        totalUncanny += Number(item.uncannyScore);
-                        totalAlignment += Number(item.alignmentScore);
-                    });
-                    
-                    const avgUncanny = totalUncanny / relevantFeedback.length;
-                    const avgAlignment = totalAlignment / relevantFeedback.length;
-                    
-                    // Update display with mode-specific scores
-                    document.getElementById('responseCount').textContent = `Interactions: ${relevantFeedback.length}`;
-                    document.getElementById('uncannyScore').textContent = `Average Uncanny Score: ${avgUncanny.toFixed(1)}/10`;
-                    document.getElementById('alignmentScore').textContent = `Average Alignment: ${avgAlignment.toFixed(1)}/10`;
-                } else {
-                    // If no data for current mode, show that
-                    document.getElementById('responseCount').textContent = `Interactions: 0 for current mode`;
-                    document.getElementById('uncannyScore').textContent = `Average Uncanny Score: -`;
-                    document.getElementById('alignmentScore').textContent = `Average Alignment: -`;
-                }
-            }
-        }
-        
-        function changeMode(modeName) {
-            if (modePresets[modeName]) {
-                currentMode = modeName;
-                
-                // Reset the framework to match this mode's initial state
-                const preset = modePresets[modeName];
-                framework.analytical = preset.framework.analytical;
-                framework.temporal = preset.framework.temporal;
-                framework.contextual = preset.framework.contextual;
-                framework.intuitive = preset.framework.intuitive;
-                
-                // Update the visualization
-                updateFrameworkVisualization();
-                
-                // Log the mode change
-                console.log(`Changed to mode: ${modeName}`);
-            }
         }
         
         function hideControls() {
             document.getElementById('soundButton').style.display = 'none';
-            document.getElementById('modeSelector').style.display = 'none';
         }
         
         function showControls() {
             document.getElementById('soundButton').style.display = 'flex';
-            document.getElementById('modeSelector').style.display = 'flex';
         }
         
         function startGame() {
@@ -1197,24 +417,6 @@
             
             // Start the game
             gameStarted = true;
-        }
-        
-        // Function to handle canvas clicks
-        function handleCanvasClick() {
-            // Only proceed if game is started and not showing feedback
-            if (!gameStarted || showingFeedback) return;
-            
-            // Create interaction
-            createCircles();
-            
-            // Increment interaction count
-            interactionCount++;
-            
-            // After every 2-3 interactions, show feedback form
-            if (interactionCount % 3 === 0) {
-                // Wait a moment for the sound to finish
-                setTimeout(showFeedbackForm, 1000);
-            }
         }
         
         // Function to unlock audio on iOS
@@ -1263,58 +465,42 @@
             // Only proceed if game is started
             if (!gameStarted) return;
             
-            // Get the current mode configuration
-            const preset = modePresets[currentMode];
-            
             // Make multiple attempts to play sound
-            playSound(preset.soundFile);
+            playSound();
             
-            // Create multiple beautiful random shapes
-            const numCircles = random(5, 12);
+            // Create multiple beautiful random circles
+            const numCircles = random(5, 12); // More circles
             const centerX = soldier.x + soldier.width / 2;
             const centerY = soldier.y + soldier.height / 2;
             
-            // Set color based on mode
-            let circleColor;
-            
-            if (currentMode === "rules-based-ai" && random() < 0.5 && preset.colors.secondary) {
-                // For rules-based-ai, alternate between two colors
-                circleColor = color(
-                    random(preset.colors.secondary.r[0], preset.colors.secondary.r[1]),
-                    random(preset.colors.secondary.g[0], preset.colors.secondary.g[1]),
-                    random(preset.colors.secondary.b[0], preset.colors.secondary.b[1])
-                );
-            } else {
-                // Use primary color
-                circleColor = color(
-                    random(preset.colors.primary.r[0], preset.colors.primary.r[1]),
-                    random(preset.colors.primary.g[0], preset.colors.primary.g[1]),
-                    random(preset.colors.primary.b[0], preset.colors.primary.b[1])
-                );
-            }
-            
-            // Add framework influence to color - computational (intuitive high) means more red
-            if (currentMode === "computational") {
-                // Ensure computational mode produces redder shapes
-                const red = map(framework.intuitive, 0, 1, 100, 250); // More red as more computational
-                circleColor = color(
-                    red,
-                    random(50, 100),
-                    random(50, 100)
-                );
-            }
-            
             for (let i = 0; i < numCircles; i++) {
-                const size = random(7, 16);
+                const size = random(7, 16); // Larger initial size
+                
+                 // Randomly choose between blue and red colors
+                 let circleColor;
+
+                if (random() < 0.5) { // 50% chance of blue
+                    // Blue colors (low red, low green, high blue)
+                    circleColor = color(
+                        random(0, 50),  // low red
+                        random(0, 100), // low green
+                        random(200, 255)  // high blue
+                    );
+                } else { // 50% chance of red
+                    // Red colors (high red, low green, low blue)
+                    circleColor = color(
+                        random(200, 255), // high red
+                        random(0, 50),    // low green
+                        random(0, 50)     // low blue
+                    );
+                }
                 
                 bullets.push(new Projectile(
                     centerX + random(-15, 15),
                     centerY + random(-15, 15),
                     size, 
                     circleColor,
-                    1,
-                    preset.effectType,
-                    preset.movementType
+                    1
                 ));
             }
             
@@ -1325,12 +511,9 @@
             soldier.last_direction = soldier.last_direction === "right" ? "left" : "right";
         }
         
-        function playSound(soundFile) {
+        function playSound() {
             // Multiple approaches to try to play sound
             try {
-                // If a specific sound file is provided, use it
-                const soundToPlay = soundFile || 'sounds/Bulletsound.mp3';
-                
                 // Approach 1: Use p5.sound
                 if (soundsLoaded) {
                     if (window.audioContext && window.audioContext.state === 'suspended') {
@@ -1348,8 +531,8 @@
                     window.backupAudio.play();
                 }
                 
-                // Approach 3: Create a new Audio element with the specific sound
-                const audio = new Audio(soundToPlay);
+                // Approach 3: Create a new Audio element each time (works on some mobile browsers)
+                const audio = new Audio('sounds/Bulletsound.mp3');
                 audio.play();
                 
             } catch (e) {
@@ -1360,8 +543,8 @@
         // KEYBOARD CONTROL HANDLERS - Simplified to just spacebar
         function keyPressed() {
             if (keyCode === 32) { // Space key
-                if (gameStarted && shoot === 0 && !showingFeedback) {
-                    handleCanvasClick();
+                if (gameStarted && shoot === 0) {
+                    createCircles();
                     if (document.getElementById('soundButton')) {
                         document.getElementById('soundButton').classList.add('active');
                     }
