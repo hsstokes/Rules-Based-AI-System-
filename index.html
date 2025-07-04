@@ -119,9 +119,9 @@
             transform: translateX(-50%) scale(0.95);
         }
         
-        /* Feedback overlay */
+        /* Feedback overlay - SIMPLIFIED */
         #feedbackOverlay {
-            position: absolute;
+            position: fixed;
             top: 0;
             left: 0;
             width: 100%;
@@ -129,14 +129,16 @@
             background-color: rgba(245, 245, 247, 0.95);
             display: none;
             flex-direction: column;
-            justify-content: center;
+            justify-content: flex-start;
             align-items: center;
             z-index: 900;
+            overflow-y: auto;
+            padding: 20px 0 100px 0;
         }
         
         #feedbackTitle {
-            font-size: 22px;
-            margin-bottom: 20px;
+            font-size: 20px;
+            margin: 20px 0;
             color: #333;
             text-align: center;
         }
@@ -215,8 +217,8 @@
         }
         
         #submitFeedback {
-            padding: 12px 30px;
-            font-size: 16px;
+            padding: 15px 30px;
+            font-size: 18px;
             background-color: #0066cc;
             color: white;
             border: none;
@@ -225,7 +227,7 @@
             font-family: 'Roboto Mono', monospace;
             transition: all 0.3s ease;
             min-width: 180px;
-            margin-top: 10px;
+            margin: 20px 0 40px 0;
             touch-action: manipulation;
             -webkit-tap-highlight-color: rgba(0,0,0,0);
         }
@@ -238,7 +240,7 @@
             transform: scale(0.98);
         }
         
-        /* Visualization panel */
+        /* Visualization panel - SIMPLIFIED */
         #vizPanel {
             position: absolute;
             top: 10px;
@@ -249,7 +251,8 @@
             z-index: 800;
             display: none;
             box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-            max-width: 320px;
+            max-width: 90%;
+            width: 320px;
             max-height: 80vh;
             overflow-y: auto;
         }
@@ -310,37 +313,48 @@
             transform: translateX(-50%);
         }
         
-        /* Node selector for different soundscapes */
-        #nodeSelector {
+        /* Mode selector - SIMPLIFIED */
+        #modeSelector {
             position: absolute;
             bottom: 20px;
-            left: 20px;
-            display: flex;
-            flex-wrap: wrap;
-            max-width: 300px;
-            background: rgba(255, 255, 255, 0.8);
-            padding: 10px;
-            border-radius: 10px;
-            z-index: 500;
+            right: 20px;
+            background-color: rgba(255, 255, 255, 0.8);
+            border-radius: 30px;
+            padding: 5px;
             display: none;
+            z-index: 500;
         }
         
-        .node-button {
-            margin: 5px;
-            padding: 8px 12px;
+        .mode-button {
             border: none;
-            border-radius: 15px;
-            cursor: pointer;
-            font-size: 12px;
+            border-radius: 25px;
+            padding: 8px 15px;
+            margin: 0 5px;
             font-family: 'Roboto Mono', monospace;
-            transition: all 0.2s ease;
-            touch-action: manipulation;
-            -webkit-tap-highlight-color: rgba(0,0,0,0);
+            font-size: 12px;
+            cursor: pointer;
+            transition: all 0.3s;
+            outline: none;
         }
         
-        .node-button.active {
-            outline: 2px solid #fff;
-            box-shadow: 0 0 5px rgba(0,0,0,0.3);
+        .mode-button.active {
+            background-color: #0066cc;
+            color: white;
+        }
+        
+        /* Simple popup message */
+        #messagePopup {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background-color: rgba(0, 0, 0, 0.8);
+            color: white;
+            padding: 15px 20px;
+            border-radius: 10px;
+            font-size: 16px;
+            z-index: 1000;
+            display: none;
         }
     </style>
 </head>
@@ -359,7 +373,7 @@
         <img src="images/your-button-image.png" alt="Sound Button">
     </div>
     
-    <!-- Feedback overlay -->
+    <!-- Simplified feedback overlay -->
     <div id="feedbackOverlay">
         <div id="feedbackTitle">How did this sound make you feel?</div>
         <form id="feedbackForm">
@@ -454,12 +468,19 @@
             <div id="responseCount">Interactions: 0</div>
             <div id="uncannyScore">Average Uncanny Score: -</div>
             <div id="alignmentScore">Average Alignment: -</div>
-            <div id="currentNodeDisplay" style="margin-top: 10px; font-size: 12px; color: #666;">Current Node: rules-based-ai</div>
+            <div id="currentMode" style="margin-top: 10px; font-size: 12px; color: #666;">Mode: Rules-Based AI</div>
         </div>
     </div>
     
-    <!-- Node selector for different soundscapes -->
-    <div id="nodeSelector"></div>
+    <!-- Simplified mode selector -->
+    <div id="modeSelector">
+        <button class="mode-button active" data-mode="rules-based-ai">Rules-Based</button>
+        <button class="mode-button" data-mode="analytical">Analytical</button>
+        <button class="mode-button" data-mode="computational">Computational</button>
+    </div>
+    
+    <!-- Message popup for feedback -->
+    <div id="messagePopup"></div>
     
     <script>
         // Game variables
@@ -480,9 +501,11 @@
         
         // Feedback variables
         let feedbackData = [];
-        let currentMode = "rules-based"; // Start with rules-based mode
         let showingFeedback = false;
         let interactionCount = 0;
+        
+        // Current mode
+        let currentMode = "rules-based-ai";
         
         // Framework dimensions with initial values (AI perspective)
         let framework = {
@@ -500,67 +523,54 @@
             intuitive: 0.5
         };
         
-        // Define the framework nodes with their initial properties
-        const frameworkNodes = {
+        // Define the mode presets
+        const modePresets = {
             "rules-based-ai": {
-                colors: {r: [0, 50], g: [0, 100], b: [200, 255]}, // Blue
-                altColors: {r: [200, 255], g: [0, 50], b: [0, 50]}, // Red
-                effectType: 0, // Single rectangle
+                colors: {
+                    primary: {r: [0, 50], g: [0, 100], b: [200, 255]}, // Blue
+                    secondary: {r: [200, 255], g: [0, 50], b: [0, 50]}  // Red
+                },
+                framework: {
+                    analytical: 0.75,
+                    temporal: 0.25,
+                    contextual: 0.25,
+                    intuitive: 0.15
+                },
+                effectType: 0,
                 movementType: "random",
                 soundFile: "sounds/Bulletsound.mp3"
             },
-            "high-fidelity": {
-                colors: {r: [0, 50], g: [50, 100], b: [150, 200]}, // Dark blue
-                effectType: 1, // Grid pattern
-                movementType: "smooth",
-                soundFile: "sounds/high-fidelity.mp3"
-            },
-            "sharp-rectangle": {
-                colors: {r: [180, 220], g: [180, 220], b: [180, 220]}, // Light grays
-                effectType: 1, // Grid pattern
+            "analytical": {
+                colors: {
+                    primary: {r: [0, 50], g: [50, 150], b: [150, 200]}, // Blue-green
+                    secondary: null
+                },
+                framework: {
+                    analytical: 0.1, // Very analytical
+                    temporal: 0.4,
+                    contextual: 0.5,
+                    intuitive: 0.6
+                },
+                effectType: 1,
                 movementType: "angular",
-                soundFile: "sounds/sharp-rectangle.mp3"
+                soundFile: "sounds/Bulletsound.mp3"
             },
-            "rigid-path": {
-                colors: {r: [200, 255], g: [200, 255], b: [0, 100]}, // Yellow
-                effectType: 0, // Single rectangle
-                movementType: "straight",
-                soundFile: "sounds/rigid-path.mp3"
-            },
-            "repetitive-listing": {
-                colors: {r: [180, 220], g: [50, 100], b: [180, 220]}, // Purple
-                effectType: 2, // Layered
-                movementType: "pulsing",
-                soundFile: "sounds/repetitive-listing.mp3"
-            },
-            "embodied": {
-                colors: {r: [100, 150], g: [200, 255], b: [100, 150]}, // Green
-                effectType: 2, // Layered
-                movementType: "organic",
-                soundFile: "sounds/embodied.mp3"
-            },
-            "temporal": {
-                colors: {r: [100, 150], g: [100, 150], b: [200, 255]}, // Light blue
-                effectType: 0, // Single
+            "computational": {
+                colors: {
+                    primary: {r: [200, 255], g: [50, 100], b: [50, 100]}, // Red
+                    secondary: null
+                },
+                framework: {
+                    analytical: 0.5,
+                    temporal: 0.6,
+                    contextual: 0.7,
+                    intuitive: 0.9 // Very computational
+                },
+                effectType: 2,
                 movementType: "sequential",
-                soundFile: "sounds/temporal.mp3"
-            },
-            "intuitive": {
-                colors: {r: [255, 200], g: [150, 200], b: [50, 100]}, // Orange
-                effectType: 2, // Layered
-                movementType: "flowing",
-                soundFile: "sounds/intuitive.mp3"
-            },
-            "contextual": {
-                colors: {r: [150, 200], g: [150, 200], b: [150, 200]}, // Medium gray
-                effectType: 1, // Grid
-                movementType: "reactive",
-                soundFile: "sounds/contextual.mp3"
+                soundFile: "sounds/Bulletsound.mp3"
             }
         };
-        
-        // Current node/soundscape
-        let currentNode = "rules-based-ai";
         
         // Player class
         class Player {
@@ -640,30 +650,12 @@
                     const speed = random(2, 8);
                     this.velX = speed * cos(angle);
                     this.velY = speed * sin(angle);
-                } else if (this.movementType === "straight") {
-                    // Straight paths
-                    this.velX = random() < 0.5 ? 5 : -5;
-                    this.velY = random() < 0.5 ? 5 : -5;
                 } else if (this.movementType === "angular") {
                     // Angular movement
                     const angle = random([0, PI/2, PI, 3*PI/2]); // Only 0, 90, 180, 270 degrees
                     const speed = random(3, 6);
                     this.velX = speed * cos(angle);
                     this.velY = speed * sin(angle);
-                } else if (this.movementType === "flowing") {
-                    // Flowing, organic movement
-                    const angle = random(0, TWO_PI);
-                    const speed = random(1, 4);
-                    this.velX = speed * cos(angle);
-                    this.velY = speed * sin(angle);
-                    this.flowOffset = random(1000);
-                } else if (this.movementType === "pulsing") {
-                    // Pulsing movement
-                    const angle = random(0, TWO_PI);
-                    const speed = random(2, 5);
-                    this.velX = speed * cos(angle);
-                    this.velY = speed * sin(angle);
-                    this.pulseRate = random(0.05, 0.2);
                 } else if (this.movementType === "sequential") {
                     // Sequential movement
                     this.moveStep = 0;
@@ -690,27 +682,12 @@
                 
                 // Rotation properties
                 this.rotation = random(TWO_PI);
-                
-                // Rotation speed based on movement type
-                if (this.movementType === "angular" || this.movementType === "straight") {
-                    this.rotationSpeed = 0; // No rotation for angular/straight
-                } else if (this.movementType === "flowing") {
-                    this.rotationSpeed = random(-0.1, 0.1); // More rotation for flowing
-                } else {
-                    this.rotationSpeed = random(-0.05, 0.05); // Normal rotation
-                }
+                this.rotationSpeed = random(-0.05, 0.05);
             }
             
             draw() {
                 // Handle special movement types
-                if (this.movementType === "flowing") {
-                    // Add some perlin noise to movement
-                    this.velX += map(noise(this.flowOffset, frameCount * 0.01), 0, 1, -0.2, 0.2);
-                    this.velY += map(noise(this.flowOffset + 1000, frameCount * 0.01), 0, 1, -0.2, 0.2);
-                } else if (this.movementType === "pulsing") {
-                    // Pulsing size
-                    this.radius += sin(frameCount * this.pulseRate) * 0.5;
-                } else if (this.movementType === "sequential") {
+                if (this.movementType === "sequential") {
                     // Sequential movement
                     this.moveTimer++;
                     if (this.moveTimer >= this.moveInterval) {
@@ -809,9 +786,6 @@
             // Sound loading
             soundFormats('mp3');
             bulletSound = loadSound('sounds/Bulletsound.mp3');
-            
-            // Additional sounds would be loaded here
-            // For prototype, we'll use the same sound for all nodes
         }
         
         function setup() {
@@ -838,13 +812,6 @@
             canvas.mousePressed(handleCanvasClick);
             canvas.touchStarted(function() {
                 handleCanvasClick();
-                return false;
-            });
-            canvas.touchEnded(function() {
-                // Only handle if not in the middle of a transition
-                if (gameStarted && !showingFeedback) {
-                    handleCanvasClick();
-                }
                 return false;
             });
             
@@ -885,8 +852,8 @@
                 toggleVizPanel();
             });
             
-            // Set up node selector
-            setupNodeSelector();
+            // Set up mode selector
+            setupModeSelector();
             
             // Update framework visualization
             updateFrameworkVisualization();
@@ -965,61 +932,48 @@
             overlay.addEventListener('touchend', closeOnTapOutside);
         }
         
-        function setupNodeSelector() {
-            const selector = document.getElementById('nodeSelector');
+        function setupModeSelector() {
+            const modeButtons = document.querySelectorAll('.mode-button');
             
-            // Create a button for each node
-            Object.keys(frameworkNodes).forEach(nodeName => {
-                const btn = document.createElement('button');
-                btn.className = 'node-button';
-                btn.dataset.node = nodeName;
-                btn.textContent = nodeName.replace(/-/g, ' ');
-                
-                // Set button color based on node colors
-                const node = frameworkNodes[nodeName];
-                const r = Math.floor((node.colors.r[0] + node.colors.r[1]) / 2);
-                const g = Math.floor((node.colors.g[0] + node.colors.g[1]) / 2);
-                const b = Math.floor((node.colors.b[0] + node.colors.b[1]) / 2);
-                btn.style.backgroundColor = `rgb(${r}, ${g}, ${b})`;
-                
-                // Set text color to be visible against the background
-                const brightness = (r * 299 + g * 587 + b * 114) / 1000;
-                btn.style.color = brightness > 128 ? 'black' : 'white';
-                
-                // Mark the current node as active
-                if (nodeName === currentNode) {
-                    btn.classList.add('active');
-                }
-                
-                // Add click handler with mobile support
-                const handleNodeSelect = function(e) {
+            modeButtons.forEach(button => {
+                const handleModeSelect = function(e) {
                     e.preventDefault();
-                    changeNode(nodeName);
+                    const newMode = this.getAttribute('data-mode');
+                    changeMode(newMode);
                     
-                    // Remove active class from all buttons
-                    document.querySelectorAll('.node-button').forEach(b => b.classList.remove('active'));
-                    
-                    // Add active class to this button
+                    // Update active button
+                    modeButtons.forEach(btn => btn.classList.remove('active'));
                     this.classList.add('active');
                     
                     // Vibration feedback
                     if (navigator.vibrate) {
                         navigator.vibrate(50);
                     }
+                    
+                    // Show a message about the mode change
+                    showMessage(`Changed to ${newMode.replace(/-/g, ' ')} mode`);
                 };
                 
-                btn.addEventListener('click', handleNodeSelect);
-                btn.addEventListener('touchend', handleNodeSelect);
-                
-                selector.appendChild(btn);
+                button.addEventListener('click', handleModeSelect);
+                button.addEventListener('touchend', handleModeSelect);
             });
+        }
+        
+        function showMessage(text, duration = 2000) {
+            const popup = document.getElementById('messagePopup');
+            popup.textContent = text;
+            popup.style.display = 'block';
+            
+            setTimeout(() => {
+                popup.style.display = 'none';
+            }, duration);
         }
         
         function showFeedbackForm() {
             showingFeedback = true;
             document.getElementById('feedbackOverlay').style.display = 'flex';
             document.getElementById('soundButton').style.display = 'none';
-            document.getElementById('nodeSelector').style.display = 'none';
+            document.getElementById('modeSelector').style.display = 'none';
             
             // For mobile: ensure the overlay is properly positioned and scroll to top
             window.scrollTo(0, 0);
@@ -1032,7 +986,7 @@
             showingFeedback = false;
             document.getElementById('feedbackOverlay').style.display = 'none';
             document.getElementById('soundButton').style.display = 'flex';
-            document.getElementById('nodeSelector').style.display = 'flex';
+            document.getElementById('modeSelector').style.display = 'flex';
             
             // Re-enable scrolling
             document.body.style.overflow = '';
@@ -1049,16 +1003,15 @@
             let selectedEmotion = selectedButton ? selectedButton.dataset.emotion : "none";
             
             // Get slider values - ensure they're stored as numbers
-            const alignmentValue = parseInt(document.getElementById('alignmentSlider').value);
-            const uncannyValue = parseInt(document.getElementById('uncannySlider').value);
+            const alignmentValue = Number(document.getElementById('alignmentSlider').value);
+            const uncannyValue = Number(document.getElementById('uncannySlider').value);
             
             // Store feedback with proper number types
             feedbackData.push({
                 mode: currentMode,
-                node: currentNode,
                 perceivedEmotion: selectedEmotion,
-                alignmentScore: Number(alignmentValue),  // Ensure this is a number
-                uncannyScore: Number(uncannyValue),     // Ensure this is a number
+                alignmentScore: alignmentValue,
+                uncannyScore: uncannyValue,
                 timestamp: new Date().toISOString()
             });
             
@@ -1068,6 +1021,9 @@
             // Update human perception based on feedback
             updateHumanPerception(selectedEmotion);
             
+            // Update framework to reflect human perception somewhat
+            adaptFrameworkToHumanPerception();
+            
             // Update visualization
             updateFrameworkVisualization();
             
@@ -1076,23 +1032,23 @@
                 document.getElementById('vizToggle').style.display = 'block';
             }
             
+            // Show mode selector after feedback
+            if (feedbackData.length >= 2 && document.getElementById('modeSelector').style.display !== 'flex') {
+                document.getElementById('modeSelector').style.display = 'flex';
+            }
+            
             // Hide feedback form
             hideFeedbackForm();
-            
-            // Switch to adaptive mode after first feedback
-            if (currentMode === "rules-based") {
-                currentMode = "adaptive";
-            }
             
             // For testing - log feedback data
             console.log("All feedback data:", feedbackData);
             
-            // Calculate and log current node's average scores
-            const nodeData = feedbackData.filter(item => item.node === currentNode);
-            if (nodeData.length > 0) {
-                const avgUncanny = nodeData.reduce((sum, item) => sum + item.uncannyScore, 0) / nodeData.length;
-                const avgAlignment = nodeData.reduce((sum, item) => sum + item.alignmentScore, 0) / nodeData.length;
-                console.log(`Current node (${currentNode}) scores - Uncanny: ${avgUncanny.toFixed(1)}, Alignment: ${avgAlignment.toFixed(1)}`);
+            // Calculate and log current mode's average scores
+            const modeData = feedbackData.filter(item => item.mode === currentMode);
+            if (modeData.length > 0) {
+                const avgUncanny = modeData.reduce((sum, item) => sum + item.uncannyScore, 0) / modeData.length;
+                const avgAlignment = modeData.reduce((sum, item) => sum + item.alignmentScore, 0) / modeData.length;
+                console.log(`Current mode (${currentMode}) scores - Uncanny: ${avgUncanny.toFixed(1)}, Alignment: ${avgAlignment.toFixed(1)}`);
             }
         }
         
@@ -1126,6 +1082,21 @@
             }
         }
         
+        function adaptFrameworkToHumanPerception() {
+            // Gradually shift framework values toward human perception
+            const adaptationRate = 0.2; // How quickly the system adapts
+            
+            framework.analytical += (humanPerception.analytical - framework.analytical) * adaptationRate;
+            framework.temporal += (humanPerception.temporal - framework.temporal) * adaptationRate;
+            framework.contextual += (humanPerception.contextual - framework.contextual) * adaptationRate;
+            framework.intuitive += (humanPerception.intuitive - framework.intuitive) * adaptationRate;
+            
+            // Update visualization if visible
+            if (document.getElementById('vizPanel').style.display === 'block') {
+                updateFrameworkVisualization();
+            }
+        }
+        
         function toggleVizPanel() {
             const vizPanel = document.getElementById('vizPanel');
             if (vizPanel.style.display === 'block') {
@@ -1143,16 +1114,16 @@
             document.getElementById('marker-contextual').style.left = `${framework.contextual * 100}%`;
             document.getElementById('marker-intuitive').style.left = `${framework.intuitive * 100}%`;
             
-            // Update the current node display
-            document.getElementById('currentNodeDisplay').textContent = `Current Node: ${currentNode}`;
+            // Update the current mode display
+            document.getElementById('currentMode').textContent = `Mode: ${currentMode.replace(/-/g, ' ')}`;
             
             // Update summary statistics
             if (feedbackData.length > 0) {
-                // Filter feedback for current node/soundscape
-                const relevantFeedback = feedbackData.filter(item => item.node === currentNode);
+                // Filter feedback for current mode
+                const relevantFeedback = feedbackData.filter(item => item.mode === currentMode);
                 
                 if (relevantFeedback.length > 0) {
-                    // Calculate averages for the current node only
+                    // Calculate averages for the current mode only
                     let totalUncanny = 0;
                     let totalAlignment = 0;
                     
@@ -1164,90 +1135,46 @@
                     const avgUncanny = totalUncanny / relevantFeedback.length;
                     const avgAlignment = totalAlignment / relevantFeedback.length;
                     
-                    // Update display with node-specific scores
+                    // Update display with mode-specific scores
                     document.getElementById('responseCount').textContent = `Interactions: ${relevantFeedback.length}`;
                     document.getElementById('uncannyScore').textContent = `Average Uncanny Score: ${avgUncanny.toFixed(1)}/10`;
                     document.getElementById('alignmentScore').textContent = `Average Alignment: ${avgAlignment.toFixed(1)}/10`;
                 } else {
-                    // If no data for current node, show that
-                    document.getElementById('responseCount').textContent = `Interactions: 0 for current node`;
+                    // If no data for current mode, show that
+                    document.getElementById('responseCount').textContent = `Interactions: 0 for current mode`;
                     document.getElementById('uncannyScore').textContent = `Average Uncanny Score: -`;
                     document.getElementById('alignmentScore').textContent = `Average Alignment: -`;
                 }
             }
         }
         
-        function changeNode(nodeName) {
-            if (frameworkNodes[nodeName]) {
-                currentNode = nodeName;
+        function changeMode(modeName) {
+            if (modePresets[modeName]) {
+                currentMode = modeName;
                 
-                // Reset the framework to match this node's initial state
-                if (nodeName === "rules-based-ai") {
-                    framework.analytical = 0.75;
-                    framework.temporal = 0.25;
-                    framework.contextual = 0.25;
-                    framework.intuitive = 0.15;
-                } else if (nodeName === "high-fidelity") {
-                    framework.analytical = 0.2;
-                    framework.temporal = 0.5;
-                    framework.contextual = 0.6;
-                    framework.intuitive = 0.3;
-                } else if (nodeName === "embodied") {
-                    framework.analytical = 0.8;
-                    framework.temporal = 0.4;
-                    framework.contextual = 0.7;
-                    framework.intuitive = 0.2;
-                } else if (nodeName === "temporal") {
-                    framework.analytical = 0.5;
-                    framework.temporal = 0.2;
-                    framework.contextual = 0.4;
-                    framework.intuitive = 0.3;
-                } else if (nodeName === "intuitive") {
-                    framework.analytical = 0.6;
-                    framework.temporal = 0.5;
-                    framework.contextual = 0.5;
-                    framework.intuitive = 0.1;
-                } else if (nodeName === "contextual") {
-                    framework.analytical = 0.5;
-                    framework.temporal = 0.5;
-                    framework.contextual = 0.2;
-                    framework.intuitive = 0.5;
-                } else if (nodeName === "sharp-rectangle") {
-                    framework.analytical = 0.3;
-                    framework.temporal = 0.7;
-                    framework.contextual = 0.7;
-                    framework.intuitive = 0.8;
-                } else if (nodeName === "rigid-path") {
-                    framework.analytical = 0.2;
-                    framework.temporal = 0.8;
-                    framework.contextual = 0.8;
-                    framework.intuitive = 0.7;
-                } else if (nodeName === "repetitive-listing") {
-                    framework.analytical = 0.1;
-                    framework.temporal = 0.3;
-                    framework.contextual = 0.8;
-                    framework.intuitive = 0.9;
-                }
-                
-                // Reset to rules-based mode when changing nodes
-                currentMode = "rules-based";
+                // Reset the framework to match this mode's initial state
+                const preset = modePresets[modeName];
+                framework.analytical = preset.framework.analytical;
+                framework.temporal = preset.framework.temporal;
+                framework.contextual = preset.framework.contextual;
+                framework.intuitive = preset.framework.intuitive;
                 
                 // Update the visualization
                 updateFrameworkVisualization();
                 
-                // Log the node change
-                console.log(`Changed to node: ${nodeName}`);
+                // Log the mode change
+                console.log(`Changed to mode: ${modeName}`);
             }
         }
         
         function hideControls() {
             document.getElementById('soundButton').style.display = 'none';
-            document.getElementById('nodeSelector').style.display = 'none';
+            document.getElementById('modeSelector').style.display = 'none';
         }
         
         function showControls() {
             document.getElementById('soundButton').style.display = 'flex';
-            document.getElementById('nodeSelector').style.display = 'flex';
+            document.getElementById('modeSelector').style.display = 'flex';
         }
         
         function startGame() {
@@ -1336,50 +1263,44 @@
             // Only proceed if game is started
             if (!gameStarted) return;
             
-            // Get the current node configuration
-            const node = frameworkNodes[currentNode];
+            // Get the current mode configuration
+            const preset = modePresets[currentMode];
             
             // Make multiple attempts to play sound
-            playSound(node.soundFile);
+            playSound(preset.soundFile);
             
-            // Create multiple beautiful random circles
+            // Create multiple beautiful random shapes
             const numCircles = random(5, 12);
             const centerX = soldier.x + soldier.width / 2;
             const centerY = soldier.y + soldier.height / 2;
             
-            // Set color scheme based on current mode and node
+            // Set color based on mode
             let circleColor;
             
-            if (currentMode === "rules-based") {
-                // In rules-based mode, use the node's defined colors
-                if (currentNode === "rules-based-ai" && random() < 0.5) {
-                    // For rules-based, alternate between two colors
-                    circleColor = color(
-                        random(node.altColors.r[0], node.altColors.r[1]),
-                        random(node.altColors.g[0], node.altColors.g[1]),
-                        random(node.altColors.b[0], node.altColors.b[1])
-                    );
-                } else {
-                    circleColor = color(
-                        random(node.colors.r[0], node.colors.r[1]),
-                        random(node.colors.g[0], node.colors.g[1]),
-                        random(node.colors.b[0], node.colors.b[1])
-                    );
-                }
-            } else {
-                // In adaptive mode, blend between node color and framework-adjusted color
-                // Calculate framework-influenced color
-                const r = map(framework.analytical, 0, 1, 50, 220); 
-                const g = map(framework.temporal, 0, 1, 50, 220);
-                const b = map(framework.intuitive, 0, 1, 50, 220);
-                
-                // Blend between node color and framework color
-                const blendFactor = 0.3; // How much to adapt (0.0 = node color only, 1.0 = framework color only)
-                
+            if (currentMode === "rules-based-ai" && random() < 0.5 && preset.colors.secondary) {
+                // For rules-based-ai, alternate between two colors
                 circleColor = color(
-                    lerp(random(node.colors.r[0], node.colors.r[1]), r, blendFactor),
-                    lerp(random(node.colors.g[0], node.colors.g[1]), g, blendFactor),
-                    lerp(random(node.colors.b[0], node.colors.b[1]), b, blendFactor)
+                    random(preset.colors.secondary.r[0], preset.colors.secondary.r[1]),
+                    random(preset.colors.secondary.g[0], preset.colors.secondary.g[1]),
+                    random(preset.colors.secondary.b[0], preset.colors.secondary.b[1])
+                );
+            } else {
+                // Use primary color
+                circleColor = color(
+                    random(preset.colors.primary.r[0], preset.colors.primary.r[1]),
+                    random(preset.colors.primary.g[0], preset.colors.primary.g[1]),
+                    random(preset.colors.primary.b[0], preset.colors.primary.b[1])
+                );
+            }
+            
+            // Add framework influence to color - computational (intuitive high) means more red
+            if (currentMode === "computational") {
+                // Ensure computational mode produces redder shapes
+                const red = map(framework.intuitive, 0, 1, 100, 250); // More red as more computational
+                circleColor = color(
+                    red,
+                    random(50, 100),
+                    random(50, 100)
                 );
             }
             
@@ -1392,8 +1313,8 @@
                     size, 
                     circleColor,
                     1,
-                    node.effectType,
-                    node.movementType
+                    preset.effectType,
+                    preset.movementType
                 ));
             }
             
@@ -1402,26 +1323,6 @@
             
             // Alternate the character direction for visual interest
             soldier.last_direction = soldier.last_direction === "right" ? "left" : "right";
-            
-            // If in adaptive mode, gradually shift framework values toward human perception
-            if (currentMode === "adaptive") {
-                adaptFrameworkToHumanPerception();
-            }
-        }
-        
-        function adaptFrameworkToHumanPerception() {
-            // Gradually shift framework values toward human perception
-            const adaptationRate = 0.1; // How quickly the system adapts
-            
-            framework.analytical += (humanPerception.analytical - framework.analytical) * adaptationRate;
-            framework.temporal += (humanPerception.temporal - framework.temporal) * adaptationRate;
-            framework.contextual += (humanPerception.contextual - framework.contextual) * adaptationRate;
-            framework.intuitive += (humanPerception.intuitive - framework.intuitive) * adaptationRate;
-            
-            // Update visualization if visible
-            if (document.getElementById('vizPanel').style.display === 'block') {
-                updateFrameworkVisualization();
-            }
         }
         
         function playSound(soundFile) {
