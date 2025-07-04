@@ -79,6 +79,8 @@
             font-family: 'Roboto Mono', monospace;
             transition: all 0.3s ease;
             letter-spacing: 1px;
+            -webkit-tap-highlight-color: rgba(0,0,0,0);
+            touch-action: manipulation;
         }
         
         #startButton:hover {
@@ -104,6 +106,7 @@
             align-items: center;
             z-index: 100;
             cursor: pointer;
+            -webkit-tap-highlight-color: rgba(0,0,0,0);
         }
         
         #soundButton img {
@@ -116,14 +119,14 @@
             transform: translateX(-50%) scale(0.95);
         }
         
-        /* New styles for feedback overlay */
+        /* Feedback overlay */
         #feedbackOverlay {
             position: absolute;
             top: 0;
             left: 0;
             width: 100%;
             height: 100%;
-            background-color: rgba(245, 245, 247, 0.9);
+            background-color: rgba(245, 245, 247, 0.95);
             display: none;
             flex-direction: column;
             justify-content: center;
@@ -139,7 +142,7 @@
         }
         
         #feedbackForm {
-            width: 80%;
+            width: 90%;
             max-width: 500px;
             display: flex;
             flex-direction: column;
@@ -156,13 +159,15 @@
         
         .emotion-option {
             margin: 5px;
-            padding: 10px 15px;
+            padding: 12px 16px;
             background-color: transparent;
             border: 1px solid #0066cc;
             border-radius: 20px;
             cursor: pointer;
             font-family: 'Roboto Mono', monospace;
             transition: all 0.2s ease;
+            -webkit-tap-highlight-color: rgba(0, 102, 204, 0.3);
+            touch-action: manipulation;
         }
         
         .emotion-option.selected {
@@ -177,24 +182,25 @@
         
         .slider-label {
             display: block;
-            margin-bottom: 10px;
+            margin-bottom: 15px;
             text-align: center;
         }
         
         .alignment-slider {
             width: 100%;
             -webkit-appearance: none;
-            height: 8px;
+            height: 25px;
             border-radius: 4px;
             background: #d3d3d3;
             outline: none;
+            margin-bottom: 15px;
         }
         
         .alignment-slider::-webkit-slider-thumb {
             -webkit-appearance: none;
             appearance: none;
-            width: 20px;
-            height: 20px;
+            width: 30px;
+            height: 30px;
             border-radius: 50%;
             background: #0066cc;
             cursor: pointer;
@@ -209,7 +215,7 @@
         }
         
         #submitFeedback {
-            padding: 10px 25px;
+            padding: 12px 30px;
             font-size: 16px;
             background-color: #0066cc;
             color: white;
@@ -218,6 +224,10 @@
             cursor: pointer;
             font-family: 'Roboto Mono', monospace;
             transition: all 0.3s ease;
+            min-width: 180px;
+            margin-top: 10px;
+            touch-action: manipulation;
+            -webkit-tap-highlight-color: rgba(0,0,0,0);
         }
         
         #submitFeedback:hover {
@@ -248,7 +258,7 @@
             position: absolute;
             top: 10px;
             right: 10px;
-            padding: 5px 10px;
+            padding: 8px 12px;
             background-color: rgba(0, 102, 204, 0.7);
             color: white;
             border: none;
@@ -257,6 +267,8 @@
             z-index: 801;
             font-family: 'Roboto Mono', monospace;
             display: none;
+            touch-action: manipulation;
+            -webkit-tap-highlight-color: rgba(0,0,0,0);
         }
         
         /* Framework visualization elements */
@@ -297,6 +309,39 @@
             top: -2px;
             transform: translateX(-50%);
         }
+        
+        /* Node selector for different soundscapes */
+        #nodeSelector {
+            position: absolute;
+            bottom: 20px;
+            left: 20px;
+            display: flex;
+            flex-wrap: wrap;
+            max-width: 300px;
+            background: rgba(255, 255, 255, 0.8);
+            padding: 10px;
+            border-radius: 10px;
+            z-index: 500;
+            display: none;
+        }
+        
+        .node-button {
+            margin: 5px;
+            padding: 8px 12px;
+            border: none;
+            border-radius: 15px;
+            cursor: pointer;
+            font-size: 12px;
+            font-family: 'Roboto Mono', monospace;
+            transition: all 0.2s ease;
+            touch-action: manipulation;
+            -webkit-tap-highlight-color: rgba(0,0,0,0);
+        }
+        
+        .node-button.active {
+            outline: 2px solid #fff;
+            box-shadow: 0 0 5px rgba(0,0,0,0.3);
+        }
     </style>
 </head>
 <body>
@@ -314,7 +359,7 @@
         <img src="images/your-button-image.png" alt="Sound Button">
     </div>
     
-    <!-- New feedback overlay -->
+    <!-- Feedback overlay -->
     <div id="feedbackOverlay">
         <div id="feedbackTitle">How did this sound make you feel?</div>
         <form id="feedbackForm">
@@ -410,9 +455,11 @@
             <div id="uncannyScore">Average Uncanny Score: -</div>
             <div id="alignmentScore">Average Alignment: -</div>
         </div>
-    </script>
-</body>
-</html>
+    </div>
+    
+    <!-- Node selector for different soundscapes -->
+    <div id="nodeSelector"></div>
+    
     <script>
         // Game variables
         let walkRight = [];
@@ -430,7 +477,7 @@
         let W_WIDTH = 1920;
         let W_HEIGHT = 1920;
         
-        // New feedback variables
+        // Feedback variables
         let feedbackData = [];
         let currentMode = "rules-based"; // Start with rules-based mode
         let showingFeedback = false;
@@ -451,6 +498,68 @@
             contextual: 0.5,
             intuitive: 0.5
         };
+        
+        // Define the framework nodes with their initial properties
+        const frameworkNodes = {
+            "rules-based-ai": {
+                colors: {r: [0, 50], g: [0, 100], b: [200, 255]}, // Blue
+                altColors: {r: [200, 255], g: [0, 50], b: [0, 50]}, // Red
+                effectType: 0, // Single rectangle
+                movementType: "random",
+                soundFile: "sounds/Bulletsound.mp3"
+            },
+            "high-fidelity": {
+                colors: {r: [0, 50], g: [50, 100], b: [150, 200]}, // Dark blue
+                effectType: 1, // Grid pattern
+                movementType: "smooth",
+                soundFile: "sounds/high-fidelity.mp3"
+            },
+            "sharp-rectangle": {
+                colors: {r: [180, 220], g: [180, 220], b: [180, 220]}, // Light grays
+                effectType: 1, // Grid pattern
+                movementType: "angular",
+                soundFile: "sounds/sharp-rectangle.mp3"
+            },
+            "rigid-path": {
+                colors: {r: [200, 255], g: [200, 255], b: [0, 100]}, // Yellow
+                effectType: 0, // Single rectangle
+                movementType: "straight",
+                soundFile: "sounds/rigid-path.mp3"
+            },
+            "repetitive-listing": {
+                colors: {r: [180, 220], g: [50, 100], b: [180, 220]}, // Purple
+                effectType: 2, // Layered
+                movementType: "pulsing",
+                soundFile: "sounds/repetitive-listing.mp3"
+            },
+            "embodied": {
+                colors: {r: [100, 150], g: [200, 255], b: [100, 150]}, // Green
+                effectType: 2, // Layered
+                movementType: "organic",
+                soundFile: "sounds/embodied.mp3"
+            },
+            "temporal": {
+                colors: {r: [100, 150], g: [100, 150], b: [200, 255]}, // Light blue
+                effectType: 0, // Single
+                movementType: "sequential",
+                soundFile: "sounds/temporal.mp3"
+            },
+            "intuitive": {
+                colors: {r: [255, 200], g: [150, 200], b: [50, 100]}, // Orange
+                effectType: 2, // Layered
+                movementType: "flowing",
+                soundFile: "sounds/intuitive.mp3"
+            },
+            "contextual": {
+                colors: {r: [150, 200], g: [150, 200], b: [150, 200]}, // Medium gray
+                effectType: 1, // Grid
+                movementType: "reactive",
+                soundFile: "sounds/contextual.mp3"
+            }
+        };
+        
+        // Current node/soundscape
+        let currentNode = "rules-based-ai";
         
         // Player class
         class Player {
@@ -514,35 +623,104 @@
         
         // Rectangle grid effect (modified from circles)
         class Projectile {
-            constructor(x, y, radius, colour, direction) {
+            constructor(x, y, radius, colour, direction, effectType, movementType) {
                 this.x = x;
                 this.y = y;
                 this.radius = radius;
                 this.colour = colour;
                 this.direction = direction;
+                this.effectType = effectType || floor(random(3));
+                this.movementType = movementType || "random";
                 
-                // Random velocity components
-                const angle = random(0, TWO_PI);
-                const speed = random(2, 8);
-                this.velX = speed * cos(angle);
-                this.velY = speed * sin(angle);
+                // Set up movement based on type
+                if (this.movementType === "random") {
+                    // Random velocity components
+                    const angle = random(0, TWO_PI);
+                    const speed = random(2, 8);
+                    this.velX = speed * cos(angle);
+                    this.velY = speed * sin(angle);
+                } else if (this.movementType === "straight") {
+                    // Straight paths
+                    this.velX = random() < 0.5 ? 5 : -5;
+                    this.velY = random() < 0.5 ? 5 : -5;
+                } else if (this.movementType === "angular") {
+                    // Angular movement
+                    const angle = random([0, PI/2, PI, 3*PI/2]); // Only 0, 90, 180, 270 degrees
+                    const speed = random(3, 6);
+                    this.velX = speed * cos(angle);
+                    this.velY = speed * sin(angle);
+                } else if (this.movementType === "flowing") {
+                    // Flowing, organic movement
+                    const angle = random(0, TWO_PI);
+                    const speed = random(1, 4);
+                    this.velX = speed * cos(angle);
+                    this.velY = speed * sin(angle);
+                    this.flowOffset = random(1000);
+                } else if (this.movementType === "pulsing") {
+                    // Pulsing movement
+                    const angle = random(0, TWO_PI);
+                    const speed = random(2, 5);
+                    this.velX = speed * cos(angle);
+                    this.velY = speed * sin(angle);
+                    this.pulseRate = random(0.05, 0.2);
+                } else if (this.movementType === "sequential") {
+                    // Sequential movement
+                    this.moveStep = 0;
+                    this.moveSequence = [
+                        {x: 4, y: 0}, {x: 0, y: 4}, {x: -4, y: 0}, {x: 0, y: -4}
+                    ];
+                    this.moveTimer = 0;
+                    this.moveInterval = floor(random(10, 20));
+                    this.velX = this.moveSequence[0].x;
+                    this.velY = this.moveSequence[0].y;
+                } else {
+                    // Default movement
+                    const angle = random(0, TWO_PI);
+                    const speed = random(2, 8);
+                    this.velX = speed * cos(angle);
+                    this.velY = speed * sin(angle);
+                }
                 
                 // Random lifetime
                 this.lifetime = random(30, 120);
                 this.age = 0;
                 this.growing = true;
-                this.maxRadius = radius * random(3, 8); // Larger shapes
+                this.maxRadius = radius * random(3, 8);
                 
-                // NEW: Add rotation for rectangles
+                // Rotation properties
                 this.rotation = random(TWO_PI);
-                this.rotationSpeed = random(-0.05, 0.05);
                 
-                // NEW: Choose effect type (0 = single rect, 1 = grid, 2 = layered)
-                this.effectType = floor(random(3));
+                // Rotation speed based on movement type
+                if (this.movementType === "angular" || this.movementType === "straight") {
+                    this.rotationSpeed = 0; // No rotation for angular/straight
+                } else if (this.movementType === "flowing") {
+                    this.rotationSpeed = random(-0.1, 0.1); // More rotation for flowing
+                } else {
+                    this.rotationSpeed = random(-0.05, 0.05); // Normal rotation
+                }
             }
             
             draw() {
-                // NEW: Add rotation transformation
+                // Handle special movement types
+                if (this.movementType === "flowing") {
+                    // Add some perlin noise to movement
+                    this.velX += map(noise(this.flowOffset, frameCount * 0.01), 0, 1, -0.2, 0.2);
+                    this.velY += map(noise(this.flowOffset + 1000, frameCount * 0.01), 0, 1, -0.2, 0.2);
+                } else if (this.movementType === "pulsing") {
+                    // Pulsing size
+                    this.radius += sin(frameCount * this.pulseRate) * 0.5;
+                } else if (this.movementType === "sequential") {
+                    // Sequential movement
+                    this.moveTimer++;
+                    if (this.moveTimer >= this.moveInterval) {
+                        this.moveTimer = 0;
+                        this.moveStep = (this.moveStep + 1) % this.moveSequence.length;
+                        this.velX = this.moveSequence[this.moveStep].x;
+                        this.velY = this.moveSequence[this.moveStep].y;
+                    }
+                }
+                
+                // Standard drawing code
                 push();
                 translate(this.x, this.y);
                 rotate(this.rotation);
@@ -552,7 +730,7 @@
                 const alpha = map(this.age, 0, this.lifetime, 255, 0);
                 fill(red(this.colour), green(this.colour), blue(this.colour), alpha);
                 
-                // MODIFIED: Draw rectangles based on effect type
+                // Draw rectangles based on effect type
                 this.drawRectEffect(0, 0, this.radius);
                 
                 pop();
@@ -561,12 +739,12 @@
                 this.x += this.velX;
                 this.y += this.velY;
                 
-                // NEW: Update rotation
+                // Update rotation
                 this.rotation += this.rotationSpeed;
                 
                 // Update size - faster growth
                 if (this.growing) {
-                    this.radius += 0.4; // Faster growth
+                    this.radius += 0.4;
                     if (this.radius >= this.maxRadius) {
                         this.growing = false;
                     }
@@ -578,7 +756,7 @@
                 this.age++;
             }
             
-            // MODIFIED: Method to draw rectangle effects
+            // Method to draw rectangle effects
             drawRectEffect(x, y, radius) {
                 rectMode(CENTER);
                 
@@ -630,6 +808,9 @@
             // Sound loading
             soundFormats('mp3');
             bulletSound = loadSound('sounds/Bulletsound.mp3');
+            
+            // Additional sounds would be loaded here
+            // For prototype, we'll use the same sound for all nodes
         }
         
         function setup() {
@@ -652,33 +833,40 @@
             canvas = createCanvas(canvasWidth, canvasHeight);
             canvas.parent('p5-container');
             
-            // Make canvas clickable to trigger circles
+            // Improve mobile interaction for canvas
             canvas.mousePressed(handleCanvasClick);
             canvas.touchStarted(function() {
                 handleCanvasClick();
+                return false;
+            });
+            canvas.touchEnded(function() {
+                // Only handle if not in the middle of a transition
+                if (gameStarted && !showingFeedback) {
+                    handleCanvasClick();
+                }
                 return false;
             });
             
             // Create character  
             soldier = new Player(width/2 - 245, height/2 - 245, 490, 490);
             
-            // Set up start button
+            // Set up start button with improved mobile handling
             document.getElementById('startButton').addEventListener('click', startGame);
-            document.getElementById('startButton').addEventListener('touchstart', function(e) {
-                startGame();
+            document.getElementById('startButton').addEventListener('touchend', function(e) {
                 e.preventDefault();
+                startGame();
             });
             
             // Sound button for mobiles
             document.getElementById('soundButton').addEventListener('click', handleCanvasClick);
-            document.getElementById('soundButton').addEventListener('touchstart', function(e) {
-                handleCanvasClick();
+            document.getElementById('soundButton').addEventListener('touchend', function(e) {
                 e.preventDefault();
+                handleCanvasClick();
             });
             
             // Add interaction to container div as well
             document.getElementById('p5-container').addEventListener('click', handleCanvasClick);
-            document.getElementById('p5-container').addEventListener('touchstart', function(e) {
+            document.getElementById('p5-container').addEventListener('touchend', function(e) {
                 // Only trigger if game has started and not from control buttons
                 if (gameStarted && e.target.id !== 'soundButton' && !showingFeedback) {
                     handleCanvasClick();
@@ -691,6 +879,13 @@
             
             // Set up visualization toggle
             document.getElementById('vizToggle').addEventListener('click', toggleVizPanel);
+            document.getElementById('vizToggle').addEventListener('touchend', function(e) {
+                e.preventDefault();
+                toggleVizPanel();
+            });
+            
+            // Set up node selector
+            setupNodeSelector();
             
             // Update framework visualization
             updateFrameworkVisualization();
@@ -700,23 +895,122 @@
             // Create AudioContext
             window.AudioContext = window.AudioContext || window.webkitAudioContext;
             window.audioContext = new AudioContext();
+            
+            // Prevent default touch behavior across the app
+            document.addEventListener('touchmove', function(e) {
+                // Prevent scrolling when in the game
+                if (gameStarted) {
+                    e.preventDefault();
+                }
+            }, { passive: false });
         }
         
         function setupFeedbackForm() {
-            // Set up emotion option buttons
+            // Set up emotion option buttons with improved mobile handling
             const emotionButtons = document.querySelectorAll('.emotion-option');
+            
             emotionButtons.forEach(button => {
-                button.addEventListener('click', function() {
+                // Use both click and touchend events for better mobile response
+                const selectEmotion = function(e) {
+                    e.preventDefault(); // Prevent default behavior
+                    
                     // Remove selected class from all buttons
                     emotionButtons.forEach(btn => btn.classList.remove('selected'));
+                    
                     // Add selected class to clicked button
                     this.classList.add('selected');
-                });
+                    
+                    // Add vibration feedback if available
+                    if (navigator.vibrate) {
+                        navigator.vibrate(50);
+                    }
+                };
+                
+                // Add both event listeners
+                button.addEventListener('click', selectEmotion);
+                button.addEventListener('touchend', selectEmotion);
             });
             
-            // Set up submit button
-            document.getElementById('submitFeedback').addEventListener('click', function() {
+            // Set up submit button with improved mobile handling
+            const submitButton = document.getElementById('submitFeedback');
+            
+            const handleSubmit = function(e) {
+                e.preventDefault(); // Prevent default behavior
+                
+                // Add vibration feedback if available
+                if (navigator.vibrate) {
+                    navigator.vibrate(100);
+                }
+                
                 submitFeedback();
+            };
+            
+            // Add both event listeners to submit button
+            submitButton.addEventListener('click', handleSubmit);
+            submitButton.addEventListener('touchend', handleSubmit);
+            
+            // Add an additional close method for mobile (tap outside the form)
+            const overlay = document.getElementById('feedbackOverlay');
+            const form = document.getElementById('feedbackForm');
+            
+            const closeOnTapOutside = function(e) {
+                // If user taps outside the form but on the overlay, close it
+                if (e.target === overlay) {
+                    hideFeedbackForm();
+                }
+            };
+            
+            overlay.addEventListener('click', closeOnTapOutside);
+            overlay.addEventListener('touchend', closeOnTapOutside);
+        }
+        
+        function setupNodeSelector() {
+            const selector = document.getElementById('nodeSelector');
+            
+            // Create a button for each node
+            Object.keys(frameworkNodes).forEach(nodeName => {
+                const btn = document.createElement('button');
+                btn.className = 'node-button';
+                btn.dataset.node = nodeName;
+                btn.textContent = nodeName.replace(/-/g, ' ');
+                
+                // Set button color based on node colors
+                const node = frameworkNodes[nodeName];
+                const r = Math.floor((node.colors.r[0] + node.colors.r[1]) / 2);
+                const g = Math.floor((node.colors.g[0] + node.colors.g[1]) / 2);
+                const b = Math.floor((node.colors.b[0] + node.colors.b[1]) / 2);
+                btn.style.backgroundColor = `rgb(${r}, ${g}, ${b})`;
+                
+                // Set text color to be visible against the background
+                const brightness = (r * 299 + g * 587 + b * 114) / 1000;
+                btn.style.color = brightness > 128 ? 'black' : 'white';
+                
+                // Mark the current node as active
+                if (nodeName === currentNode) {
+                    btn.classList.add('active');
+                }
+                
+                // Add click handler with mobile support
+                const handleNodeSelect = function(e) {
+                    e.preventDefault();
+                    changeNode(nodeName);
+                    
+                    // Remove active class from all buttons
+                    document.querySelectorAll('.node-button').forEach(b => b.classList.remove('active'));
+                    
+                    // Add active class to this button
+                    this.classList.add('active');
+                    
+                    // Vibration feedback
+                    if (navigator.vibrate) {
+                        navigator.vibrate(50);
+                    }
+                };
+                
+                btn.addEventListener('click', handleNodeSelect);
+                btn.addEventListener('touchend', handleNodeSelect);
+                
+                selector.appendChild(btn);
             });
         }
         
@@ -724,12 +1018,23 @@
             showingFeedback = true;
             document.getElementById('feedbackOverlay').style.display = 'flex';
             document.getElementById('soundButton').style.display = 'none';
+            document.getElementById('nodeSelector').style.display = 'none';
+            
+            // For mobile: ensure the overlay is properly positioned and scroll to top
+            window.scrollTo(0, 0);
+            
+            // Disable background scrolling when feedback is shown
+            document.body.style.overflow = 'hidden';
         }
         
         function hideFeedbackForm() {
             showingFeedback = false;
             document.getElementById('feedbackOverlay').style.display = 'none';
             document.getElementById('soundButton').style.display = 'flex';
+            document.getElementById('nodeSelector').style.display = 'flex';
+            
+            // Re-enable scrolling
+            document.body.style.overflow = '';
             
             // Reset form
             document.querySelectorAll('.emotion-option').forEach(btn => btn.classList.remove('selected'));
@@ -749,6 +1054,7 @@
             // Store feedback
             feedbackData.push({
                 mode: currentMode,
+                node: currentNode,
                 perceivedEmotion: selectedEmotion,
                 alignmentScore: alignmentValue,
                 uncannyScore: uncannyValue,
@@ -846,12 +1152,74 @@
             }
         }
         
+        function changeNode(nodeName) {
+            if (frameworkNodes[nodeName]) {
+                currentNode = nodeName;
+                
+                // Reset the framework to match this node's initial state
+                if (nodeName === "rules-based-ai") {
+                    framework.analytical = 0.75;
+                    framework.temporal = 0.25;
+                    framework.contextual = 0.25;
+                    framework.intuitive = 0.15;
+                } else if (nodeName === "high-fidelity") {
+                    framework.analytical = 0.2;
+                    framework.temporal = 0.5;
+                    framework.contextual = 0.6;
+                    framework.intuitive = 0.3;
+                } else if (nodeName === "embodied") {
+                    framework.analytical = 0.8;
+                    framework.temporal = 0.4;
+                    framework.contextual = 0.7;
+                    framework.intuitive = 0.2;
+                } else if (nodeName === "temporal") {
+                    framework.analytical = 0.5;
+                    framework.temporal = 0.2;
+                    framework.contextual = 0.4;
+                    framework.intuitive = 0.3;
+                } else if (nodeName === "intuitive") {
+                    framework.analytical = 0.6;
+                    framework.temporal = 0.5;
+                    framework.contextual = 0.5;
+                    framework.intuitive = 0.1;
+                } else if (nodeName === "contextual") {
+                    framework.analytical = 0.5;
+                    framework.temporal = 0.5;
+                    framework.contextual = 0.2;
+                    framework.intuitive = 0.5;
+                } else if (nodeName === "sharp-rectangle") {
+                    framework.analytical = 0.3;
+                    framework.temporal = 0.7;
+                    framework.contextual = 0.7;
+                    framework.intuitive = 0.8;
+                } else if (nodeName === "rigid-path") {
+                    framework.analytical = 0.2;
+                    framework.temporal = 0.8;
+                    framework.contextual = 0.8;
+                    framework.intuitive = 0.7;
+                } else if (nodeName === "repetitive-listing") {
+                    framework.analytical = 0.1;
+                    framework.temporal = 0.3;
+                    framework.contextual = 0.8;
+                    framework.intuitive = 0.9;
+                }
+                
+                // Reset to rules-based mode when changing nodes
+                currentMode = "rules-based";
+                
+                // Update the visualization
+                updateFrameworkVisualization();
+            }
+        }
+        
         function hideControls() {
             document.getElementById('soundButton').style.display = 'none';
+            document.getElementById('nodeSelector').style.display = 'none';
         }
         
         function showControls() {
             document.getElementById('soundButton').style.display = 'flex';
+            document.getElementById('nodeSelector').style.display = 'flex';
         }
         
         function startGame() {
@@ -940,58 +1308,64 @@
             // Only proceed if game is started
             if (!gameStarted) return;
             
+            // Get the current node configuration
+            const node = frameworkNodes[currentNode];
+            
             // Make multiple attempts to play sound
-            playSound();
+            playSound(node.soundFile);
             
             // Create multiple beautiful random circles
-            const numCircles = random(5, 12); // More circles
+            const numCircles = random(5, 12);
             const centerX = soldier.x + soldier.width / 2;
             const centerY = soldier.y + soldier.height / 2;
             
-            // Set color scheme based on current mode
+            // Set color scheme based on current mode and node
             let circleColor;
             
             if (currentMode === "rules-based") {
-                // In rules-based mode (initial state), use blue and red as in original code
-                if (random() < 0.5) { // 50% chance of blue
-                    // Blue colors (low red, low green, high blue)
+                // In rules-based mode, use the node's defined colors
+                if (currentNode === "rules-based-ai" && random() < 0.5) {
+                    // For rules-based, alternate between two colors
                     circleColor = color(
-                        random(0, 50),  // low red
-                        random(0, 100), // low green
-                        random(200, 255)  // high blue
+                        random(node.altColors.r[0], node.altColors.r[1]),
+                        random(node.altColors.g[0], node.altColors.g[1]),
+                        random(node.altColors.b[0], node.altColors.b[1])
                     );
-                } else { // 50% chance of red
-                    // Red colors (high red, low green, low blue)
+                } else {
                     circleColor = color(
-                        random(200, 255), // high red
-                        random(0, 50),    // low green
-                        random(0, 50)     // low blue
+                        random(node.colors.r[0], node.colors.r[1]),
+                        random(node.colors.g[0], node.colors.g[1]),
+                        random(node.colors.b[0], node.colors.b[1])
                     );
                 }
             } else {
-                // In adaptive mode (after feedback), use colors based on framework
-                // Create RGB values based on the four framework dimensions
-                const r = map(framework.analytical, 0, 1, 50, 220); // More red = more embodied
-                const g = map(framework.temporal, 0, 1, 50, 220);    // More green = more atemporal
-                const b = map(framework.intuitive, 0, 1, 50, 220);   // More blue = more computational
+                // In adaptive mode, blend between node color and framework-adjusted color
+                // Calculate framework-influenced color
+                const r = map(framework.analytical, 0, 1, 50, 220); 
+                const g = map(framework.temporal, 0, 1, 50, 220);
+                const b = map(framework.intuitive, 0, 1, 50, 220);
                 
-                // Add some variation for visual interest
+                // Blend between node color and framework color
+                const blendFactor = 0.3; // How much to adapt (0.0 = node color only, 1.0 = framework color only)
+                
                 circleColor = color(
-                    r + random(-30, 30),
-                    g + random(-30, 30),
-                    b + random(-30, 30)
+                    lerp(random(node.colors.r[0], node.colors.r[1]), r, blendFactor),
+                    lerp(random(node.colors.g[0], node.colors.g[1]), g, blendFactor),
+                    lerp(random(node.colors.b[0], node.colors.b[1]), b, blendFactor)
                 );
             }
             
             for (let i = 0; i < numCircles; i++) {
-                const size = random(7, 16); // Larger initial size
+                const size = random(7, 16);
                 
                 bullets.push(new Projectile(
                     centerX + random(-15, 15),
                     centerY + random(-15, 15),
                     size, 
                     circleColor,
-                    1
+                    1,
+                    node.effectType,
+                    node.movementType
                 ));
             }
             
@@ -1022,9 +1396,12 @@
             }
         }
         
-        function playSound() {
+        function playSound(soundFile) {
             // Multiple approaches to try to play sound
             try {
+                // If a specific sound file is provided, use it
+                const soundToPlay = soundFile || 'sounds/Bulletsound.mp3';
+                
                 // Approach 1: Use p5.sound
                 if (soundsLoaded) {
                     if (window.audioContext && window.audioContext.state === 'suspended') {
@@ -1042,8 +1419,8 @@
                     window.backupAudio.play();
                 }
                 
-                // Approach 3: Create a new Audio element each time (works on some mobile browsers)
-                const audio = new Audio('sounds/Bulletsound.mp3');
+                // Approach 3: Create a new Audio element with the specific sound
+                const audio = new Audio(soundToPlay);
                 audio.play();
                 
             } catch (e) {
