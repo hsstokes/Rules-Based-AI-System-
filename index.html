@@ -454,6 +454,7 @@
             <div id="responseCount">Interactions: 0</div>
             <div id="uncannyScore">Average Uncanny Score: -</div>
             <div id="alignmentScore">Average Alignment: -</div>
+            <div id="currentNodeDisplay" style="margin-top: 10px; font-size: 12px; color: #666;">Current Node: rules-based-ai</div>
         </div>
     </div>
     
@@ -629,7 +630,7 @@
                 this.radius = radius;
                 this.colour = colour;
                 this.direction = direction;
-                this.effectType = effectType || floor(random(3));
+                this.effectType = effectType !== undefined ? effectType : floor(random(3));
                 this.movementType = movementType || "random";
                 
                 // Set up movement based on type
@@ -1047,19 +1048,22 @@
             const selectedButton = document.querySelector('.emotion-option.selected');
             let selectedEmotion = selectedButton ? selectedButton.dataset.emotion : "none";
             
-            // Get slider values
+            // Get slider values - ensure they're stored as numbers
             const alignmentValue = parseInt(document.getElementById('alignmentSlider').value);
             const uncannyValue = parseInt(document.getElementById('uncannySlider').value);
             
-            // Store feedback
+            // Store feedback with proper number types
             feedbackData.push({
                 mode: currentMode,
                 node: currentNode,
                 perceivedEmotion: selectedEmotion,
-                alignmentScore: alignmentValue,
-                uncannyScore: uncannyValue,
+                alignmentScore: Number(alignmentValue),  // Ensure this is a number
+                uncannyScore: Number(uncannyValue),     // Ensure this is a number
                 timestamp: new Date().toISOString()
             });
+            
+            // Log the feedback to verify it's stored correctly
+            console.log("New feedback added:", feedbackData[feedbackData.length - 1]);
             
             // Update human perception based on feedback
             updateHumanPerception(selectedEmotion);
@@ -1081,7 +1085,15 @@
             }
             
             // For testing - log feedback data
-            console.log("Feedback data:", feedbackData);
+            console.log("All feedback data:", feedbackData);
+            
+            // Calculate and log current node's average scores
+            const nodeData = feedbackData.filter(item => item.node === currentNode);
+            if (nodeData.length > 0) {
+                const avgUncanny = nodeData.reduce((sum, item) => sum + item.uncannyScore, 0) / nodeData.length;
+                const avgAlignment = nodeData.reduce((sum, item) => sum + item.alignmentScore, 0) / nodeData.length;
+                console.log(`Current node (${currentNode}) scores - Uncanny: ${avgUncanny.toFixed(1)}, Alignment: ${avgAlignment.toFixed(1)}`);
+            }
         }
         
         function updateHumanPerception(emotion) {
@@ -1131,24 +1143,37 @@
             document.getElementById('marker-contextual').style.left = `${framework.contextual * 100}%`;
             document.getElementById('marker-intuitive').style.left = `${framework.intuitive * 100}%`;
             
+            // Update the current node display
+            document.getElementById('currentNodeDisplay').textContent = `Current Node: ${currentNode}`;
+            
             // Update summary statistics
             if (feedbackData.length > 0) {
-                // Calculate averages
-                let totalUncanny = 0;
-                let totalAlignment = 0;
+                // Filter feedback for current node/soundscape
+                const relevantFeedback = feedbackData.filter(item => item.node === currentNode);
                 
-                feedbackData.forEach(item => {
-                    totalUncanny += item.uncannyScore;
-                    totalAlignment += item.alignmentScore;
-                });
-                
-                const avgUncanny = totalUncanny / feedbackData.length;
-                const avgAlignment = totalAlignment / feedbackData.length;
-                
-                // Update display
-                document.getElementById('responseCount').textContent = `Interactions: ${feedbackData.length}`;
-                document.getElementById('uncannyScore').textContent = `Average Uncanny Score: ${avgUncanny.toFixed(1)}/10`;
-                document.getElementById('alignmentScore').textContent = `Average Alignment: ${avgAlignment.toFixed(1)}/10`;
+                if (relevantFeedback.length > 0) {
+                    // Calculate averages for the current node only
+                    let totalUncanny = 0;
+                    let totalAlignment = 0;
+                    
+                    relevantFeedback.forEach(item => {
+                        totalUncanny += Number(item.uncannyScore);
+                        totalAlignment += Number(item.alignmentScore);
+                    });
+                    
+                    const avgUncanny = totalUncanny / relevantFeedback.length;
+                    const avgAlignment = totalAlignment / relevantFeedback.length;
+                    
+                    // Update display with node-specific scores
+                    document.getElementById('responseCount').textContent = `Interactions: ${relevantFeedback.length}`;
+                    document.getElementById('uncannyScore').textContent = `Average Uncanny Score: ${avgUncanny.toFixed(1)}/10`;
+                    document.getElementById('alignmentScore').textContent = `Average Alignment: ${avgAlignment.toFixed(1)}/10`;
+                } else {
+                    // If no data for current node, show that
+                    document.getElementById('responseCount').textContent = `Interactions: 0 for current node`;
+                    document.getElementById('uncannyScore').textContent = `Average Uncanny Score: -`;
+                    document.getElementById('alignmentScore').textContent = `Average Alignment: -`;
+                }
             }
         }
         
@@ -1209,6 +1234,9 @@
                 
                 // Update the visualization
                 updateFrameworkVisualization();
+                
+                // Log the node change
+                console.log(`Changed to node: ${nodeName}`);
             }
         }
         
