@@ -3,11 +3,11 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Tactile Thresholds</title>
+    <title>Tactile Thresholds: Empathy Framework</title>
     <script src="https://cdn.jsdelivr.net/npm/p5@1.6.0/lib/p5.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.6.0/addons/p5.sound.min.js"></script>
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Roboto+Mono:wght@300;400&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Roboto+Mono:wght@300;400;500&display=swap');
         
         body {
             margin: 0;
@@ -36,40 +36,60 @@
             transform: translate(-50%, -50%);
         }
         
-        #startOverlay {
-            position: absolute;
+        /* Overlays */
+        .overlay {
+            position: fixed;
             top: 0;
             left: 0;
             width: 100%;
             height: 100%;
-            background-color: rgba(245, 245, 247, 0.9);
+            background-color: rgba(245, 245, 247, 0.95);
             display: flex;
             flex-direction: column;
-            justify-content: center;
+            justify-content: flex-start;
             align-items: center;
             z-index: 1000;
+            overflow-y: auto;
+            box-sizing: border-box;
+            padding: 20px;
         }
         
-        #startTitle {
+        #startOverlay {
+            justify-content: center;
+        }
+        
+        #feedbackOverlay {
+            display: none;
+            padding-bottom: 100px;
+        }
+        
+        #resultsOverlay {
+            display: none;
+            justify-content: center;
+        }
+        
+        /* Titles and text */
+        .title {
             font-size: 24px;
-            margin-bottom: 20px;
+            margin: 20px 0;
             color: #333;
             text-align: center;
             letter-spacing: 1px;
         }
         
-        #startDescription {
+        .description {
             max-width: 500px;
             font-size: 16px;
             line-height: 1.5;
-            margin-bottom: 40px;
+            margin-bottom: 30px;
             text-align: center;
             color: #555;
             padding: 0 20px;
         }
         
-        #startButton {
-            padding: 12px 30px;
+        /* Buttons */
+        .button {
+            padding: 15px 30px;
             font-size: 18px;
             background-color: transparent;
             color: #0066cc;
@@ -79,58 +99,423 @@
             font-family: 'Roboto Mono', monospace;
             transition: all 0.3s ease;
             letter-spacing: 1px;
+            -webkit-tap-highlight-color: rgba(0,0,0,0);
+            touch-action: manipulation;
+            margin: 10px 0;
         }
         
-        #startButton:hover {
+        .button:hover {
             background-color: rgba(0, 102, 204, 0.1);
         }
         
-        #startButton:active {
+        .button:active {
             transform: scale(0.98);
         }
         
-        #soundButton {
+        .button.primary {
+            background-color: #0066cc;
+            color: white;
+        }
+        
+        /* Interaction button */
+        #interactButton {
             position: absolute;
             bottom: 20px;
             left: 50%;
             transform: translateX(-50%);
             width: 80px;
             height: 80px;
-            background-color: transparent;
-            border: none;
-            border-radius: 0;
+            background-color: rgba(0, 102, 204, 0.2);
+            border: 2px solid #0066cc;
+            border-radius: 50%;
             display: none;
             justify-content: center;
             align-items: center;
             z-index: 100;
             cursor: pointer;
+            -webkit-tap-highlight-color: rgba(0,0,0,0);
+            touch-action: manipulation;
         }
         
-        #soundButton img {
-            width: 100%;
-            height: 100%;
-            object-fit: contain;
-        }
-        
-        #soundButton:active {
+        #interactButton:active {
             transform: translateX(-50%) scale(0.95);
+            background-color: rgba(0, 102, 204, 0.4);
+        }
+        
+        #interactionCounter {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            background-color: rgba(255, 255, 255, 0.7);
+            padding: 5px 10px;
+            border-radius: 15px;
+            font-size: 14px;
+            display: none;
+            z-index: 100;
+        }
+        
+        /* Feedback form elements */
+        .feedback-form {
+            width: 100%;
+            max-width: 500px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        
+        .question {
+            width: 100%;
+            margin-bottom: 25px;
+        }
+        
+        .question-text {
+            font-size: 16px;
+            margin-bottom: 15px;
+            font-weight: 500;
+            text-align: center;
+        }
+        
+        .options-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 10px;
+            width: 100%;
+        }
+        
+        @media (min-width: 500px) {
+            .options-grid {
+                grid-template-columns: repeat(4, 1fr);
+            }
+        }
+        
+        .option-button {
+            padding: 12px 5px;
+            background-color: transparent;
+            color: #333;
+            border: 1px solid #ccc;
+            border-radius: 8px;
+            cursor: pointer;
+            font-family: 'Roboto Mono', monospace;
+            transition: all 0.2s ease;
+            -webkit-tap-highlight-color: rgba(0,0,0,0);
+            touch-action: manipulation;
+            font-size: 14px;
+            text-align: center;
+        }
+        
+        .option-button.selected {
+            background-color: #0066cc;
+            color: white;
+            border-color: #0066cc;
+        }
+        
+        /* Slider */
+        .slider-container {
+            width: 100%;
+            margin-bottom: 25px;
+        }
+        
+        .slider-label {
+            display: block;
+            margin-bottom: 15px;
+            text-align: center;
+            font-weight: 500;
+        }
+        
+        .slider {
+            width: 100%;
+            -webkit-appearance: none;
+            height: 25px;
+            border-radius: 4px;
+            background: #d3d3d3;
+            outline: none;
+            margin-bottom: 15px;
+        }
+        
+        .slider::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            background: #0066cc;
+            cursor: pointer;
+        }
+        
+        .slider-values {
+            display: flex;
+            justify-content: space-between;
+            width: 100%;
+            font-size: 12px;
+            color: #666;
+        }
+        
+        /* Results visualization */
+        .results-container {
+            width: 100%;
+            max-width: 600px;
+        }
+        
+        .dimension-container {
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 1px solid #eee;
+        }
+        
+        .dimension-title {
+            font-size: 16px;
+            font-weight: 500;
+            margin-bottom: 10px;
+        }
+        
+        .dimension-scale {
+            height: 15px;
+            width: 100%;
+            background: linear-gradient(to right, #3498db, #e74c3c);
+            border-radius: 5px;
+            position: relative;
+            margin: 8px 0;
+        }
+        
+        .dimension-marker {
+            position: absolute;
+            width: 8px;
+            height: 20px;
+            background-color: #333;
+            border-radius: 2px;
+            top: -2px;
+            transform: translateX(-50%);
+        }
+        
+        .dimension-labels {
+            display: flex;
+            justify-content: space-between;
+            font-size: 12px;
+            color: #666;
+            margin-top: 5px;
+        }
+        
+        .stats-container {
+            background-color: rgba(255, 255, 255, 0.5);
+            border-radius: 10px;
+            padding: 15px;
+            margin-top: 20px;
+        }
+        
+        .stat-item {
+            margin-bottom: 10px;
+            font-size: 14px;
+        }
+        
+        /* Help button */
+        #helpButton {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            width: 40px;
+            height: 40px;
+            background-color: rgba(0, 0, 0, 0.1);
+            border-radius: 50%;
+            display: none;
+            justify-content: center;
+            align-items: center;
+            font-size: 20px;
+            color: #333;
+            cursor: pointer;
+            z-index: 100;
+            -webkit-tap-highlight-color: rgba(0,0,0,0);
+        }
+        
+        #helpOverlay {
+            display: none;
+        }
+        
+        .framework-diagram {
+            max-width: 100%;
+            margin: 20px 0;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
         }
     </style>
 </head>
 <body>
     <div id="p5-container"></div>
-    <div id="startOverlay">
-        <div id="startTitle">Tactile Thresholds</div>
-        <div id="startDescription">
+    
+    <!-- Start Screen -->
+    <div id="startOverlay" class="overlay">
+        <div class="title">Tactile Thresholds</div>
+        <div class="description">
             "Rules-Based AI System": Explore the intersection of physical and digital through touch. 
             Each interaction generates unique sound compositions that map the 
             emotional relationships between human and AI.
         </div>
-        <button id="startButton">BEGIN INTERACTION</button>
+        <button id="startButton" class="button primary">BEGIN INTERACTION</button>
     </div>
-    <div id="soundButton">
-        <img src="images/your-button-image.png" alt="Sound Button">
-    </div>       
+    
+    <!-- Interaction Controls -->
+    <div id="interactButton">
+        <svg width="30" height="30" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M8 5V19M16 5V19M5 8H19M5 16H19" stroke="#0066cc" stroke-width="2" stroke-linecap="round" />
+        </svg>
+    </div>
+    <div id="interactionCounter">Interactions: 0/5</div>
+    <div id="helpButton">?</div>
+    
+    <!-- Feedback Overlay -->
+    <div id="feedbackOverlay" class="overlay">
+        <div class="title">Empathy Framework Analysis</div>
+        <div class="description">
+            How would you characterize the sound and visual experience you just encountered?
+        </div>
+        
+        <form id="feedbackForm" class="feedback-form">
+            <!-- Question 1: Dimensional Axis -->
+            <div class="question">
+                <div class="question-text">Which dimension best describes the experience?</div>
+                <div class="options-grid">
+                    <button type="button" class="option-button" data-dimension="analytical">Analytical</button>
+                    <button type="button" class="option-button" data-dimension="embodied">Embodied</button>
+                    <button type="button" class="option-button" data-dimension="temporal">Temporal</button>
+                    <button type="button" class="option-button" data-dimension="atemporal">Atemporal</button>
+                </div>
+            </div>
+            
+            <!-- Question 2: Second Dimension -->
+            <div class="question">
+                <div class="question-text">Which secondary dimension did you notice?</div>
+                <div class="options-grid">
+                    <button type="button" class="option-button" data-dimension2="contextual">Contextual</button>
+                    <button type="button" class="option-button" data-dimension2="decontextualized">Decontextualized</button>
+                    <button type="button" class="option-button" data-dimension2="intuitive">Intuitive</button>
+                    <button type="button" class="option-button" data-dimension2="computational">Computational</button>
+                </div>
+            </div>
+            
+            <!-- Question 3: Uncanny Valley Rating -->
+            <div class="question">
+                <div class="slider-container">
+                    <div class="slider-label">How "uncanny" did this interaction feel?</div>
+                    <input type="range" min="1" max="10" value="5" class="slider" id="uncannySlider">
+                    <div class="slider-values">
+                        <span>Natural</span>
+                        <span>Deeply Uncanny</span>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Question 4: Emotional Response -->
+            <div class="question">
+                <div class="question-text">What emotional response did you experience?</div>
+                <div class="options-grid">
+                    <button type="button" class="option-button" data-emotion="curious">Curious</button>
+                    <button type="button" class="option-button" data-emotion="confused">Confused</button>
+                    <button type="button" class="option-button" data-emotion="engaged">Engaged</button>
+                    <button type="button" class="option-button" data-emotion="unsettled">Unsettled</button>
+                </div>
+            </div>
+            
+            <!-- Submit Button -->
+            <button type="button" id="submitFeedback" class="button primary">Submit Feedback</button>
+        </form>
+    </div>
+    
+    <!-- Results Overlay -->
+    <div id="resultsOverlay" class="overlay">
+        <div class="title">Dimensional Empathy Analysis</div>
+        <div class="description">
+            Here's how your perceptions compare with the intended AI empathy framework dimensions.
+        </div>
+        
+        <div class="results-container">
+            <!-- Analytical vs Embodied -->
+            <div class="dimension-container">
+                <div class="dimension-title">Analytical ↔ Embodied</div>
+                <div class="dimension-scale">
+                    <div class="dimension-marker" id="marker-analytical-ai" style="left: 25%; background-color: #3498db;"></div>
+                    <div class="dimension-marker" id="marker-analytical-human" style="left: 75%; background-color: #e74c3c;"></div>
+                </div>
+                <div class="dimension-labels">
+                    <span>Analytical</span>
+                    <span>Embodied</span>
+                </div>
+            </div>
+            
+            <!-- Temporal vs Atemporal -->
+            <div class="dimension-container">
+                <div class="dimension-title">Temporal ↔ Atemporal</div>
+                <div class="dimension-scale">
+                    <div class="dimension-marker" id="marker-temporal-ai" style="left: 25%; background-color: #3498db;"></div>
+                    <div class="dimension-marker" id="marker-temporal-human" style="left: 75%; background-color: #e74c3c;"></div>
+                </div>
+                <div class="dimension-labels">
+                    <span>Temporal</span>
+                    <span>Atemporal</span>
+                </div>
+            </div>
+            
+            <!-- Contextual vs Decontextualized -->
+            <div class="dimension-container">
+                <div class="dimension-title">Contextual ↔ Decontextualized</div>
+                <div class="dimension-scale">
+                    <div class="dimension-marker" id="marker-contextual-ai" style="left: 25%; background-color: #3498db;"></div>
+                    <div class="dimension-marker" id="marker-contextual-human" style="left: 75%; background-color: #e74c3c;"></div>
+                </div>
+                <div class="dimension-labels">
+                    <span>Contextual</span>
+                    <span>Decontextualized</span>
+                </div>
+            </div>
+            
+            <!-- Intuitive vs Computational -->
+            <div class="dimension-container">
+                <div class="dimension-title">Intuitive ↔ Computational</div>
+                <div class="dimension-scale">
+                    <div class="dimension-marker" id="marker-intuitive-ai" style="left: 25%; background-color: #3498db;"></div>
+                    <div class="dimension-marker" id="marker-intuitive-human" style="left: 75%; background-color: #e74c3c;"></div>
+                </div>
+                <div class="dimension-labels">
+                    <span>Intuitive</span>
+                    <span>Computational</span>
+                </div>
+            </div>
+            
+            <div class="stats-container">
+                <div class="stat-item" id="uncannyScore">Your Uncanny Rating: 5/10</div>
+                <div class="stat-item" id="emotionalResponse">Your Emotional Response: --</div>
+                <div class="stat-item" id="dimensionalGap">Dimensional Gap: 40%</div>
+                <div class="stat-item" id="interpretationSummary">This suggests you perceive this AI interaction as more embodied and intuitive than its rules-based design intended.</div>
+            </div>
+            
+            <div style="display: flex; justify-content: space-between; margin-top: 30px; width: 100%;">
+                <button id="continueButton" class="button">Continue Exploring</button>
+                <button id="restartButton" class="button primary">Start New Analysis</button>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Help Overlay -->
+    <div id="helpOverlay" class="overlay">
+        <div class="title">Understanding the Dimensional Empathy Framework</div>
+        <div class="description">
+            The framework maps the emotional and cognitive dimensions of human-AI interaction, helping us understand where the "uncanny valley" emerges.
+        </div>
+        
+        <img class="framework-diagram" src="https://placehold.co/600x400?text=Empathy+Framework+Diagram" alt="Empathy Framework Diagram">
+        
+        <div style="max-width: 600px; text-align: left; margin: 0 auto 30px auto;">
+            <h3>Key Dimensions:</h3>
+            <p><strong>Analytical vs Embodied</strong>: Refers to whether the interaction feels calculated and data-driven (analytical) or physically and emotionally present (embodied).</p>
+            <p><strong>Temporal vs Atemporal</strong>: Describes whether the interaction feels connected to the flow of time (temporal) or exists outside normal time constraints (atemporal).</p>
+            <p><strong>Contextual vs Decontextualized</strong>: Measures whether the interaction feels grounded in a specific context or floating free from contextual boundaries.</p>
+            <p><strong>Intuitive vs Computational</strong>: Distinguishes between interactions that feel natural and effortless versus those that feel calculated and algorithmically determined.</p>
+            
+            <h3>The Uncanny Valley:</h3>
+            <p>The "uncanny valley" occurs when an AI interaction is close to human-like but not quite there—creating a sense of unease or discomfort. This framework helps identify where that threshold exists for different people.</p>
+        </div>
+        
+        <button id="closeHelp" class="button primary">Return to Experience</button>
+    </div>
+    
     <script>
         // Game variables
         let walkRight = [];
@@ -147,6 +532,29 @@
         // Canvas dimensions
         let W_WIDTH = 1920;
         let W_HEIGHT = 1920;
+        
+        // Interaction tracking
+        let interactionCount = 0;
+        const interactionsBeforeFeedback = 5;
+        
+        // Feedback data
+        let feedbackData = [];
+        
+        // AI Empathy Framework dimensions - rules-based AI preset
+        const aiFramework = {
+            analytical: 0.75,  // More analytical (0) than embodied (1)
+            temporal: 0.25,    // More temporal (0) than atemporal (1)
+            contextual: 0.25,  // More contextual (0) than decontextualized (1)
+            intuitive: 0.15    // More intuitive (0) than computational (1)
+        };
+        
+        // Human perception (will be populated from feedback)
+        let humanPerception = {
+            analytical: 0.5,
+            temporal: 0.5,
+            contextual: 0.5,
+            intuitive: 0.5
+        };
         
         // Player class
         class Player {
@@ -229,16 +637,16 @@
                 this.growing = true;
                 this.maxRadius = radius * random(3, 8); // Larger shapes
                 
-                // NEW: Add rotation for rectangles
+                // Add rotation for rectangles
                 this.rotation = random(TWO_PI);
                 this.rotationSpeed = random(-0.05, 0.05);
                 
-                // NEW: Choose effect type (0 = single rect, 1 = grid, 2 = layered)
+                // Choose effect type (0 = single rect, 1 = grid, 2 = layered)
                 this.effectType = floor(random(3));
             }
             
             draw() {
-                // NEW: Add rotation transformation
+                // Add rotation transformation
                 push();
                 translate(this.x, this.y);
                 rotate(this.rotation);
@@ -248,7 +656,7 @@
                 const alpha = map(this.age, 0, this.lifetime, 255, 0);
                 fill(red(this.colour), green(this.colour), blue(this.colour), alpha);
                 
-                // MODIFIED: Draw rectangles based on effect type
+                // Draw rectangles based on effect type
                 this.drawRectEffect(0, 0, this.radius);
                 
                 pop();
@@ -257,7 +665,7 @@
                 this.x += this.velX;
                 this.y += this.velY;
                 
-                // NEW: Update rotation
+                // Update rotation
                 this.rotation += this.rotationSpeed;
                 
                 // Update size - faster growth
@@ -274,7 +682,7 @@
                 this.age++;
             }
             
-            // MODIFIED: Method to draw rectangle effects
+            // Method to draw rectangle effects
             drawRectEffect(x, y, radius) {
                 rectMode(CENTER);
                 
@@ -348,39 +756,18 @@
             canvas = createCanvas(canvasWidth, canvasHeight);
             canvas.parent('p5-container');
             
-            // Make canvas clickable to trigger circles
-            canvas.mousePressed(createCircles);
+            // Make canvas clickable to trigger interaction
+            canvas.mousePressed(createInteraction);
             canvas.touchStarted(function() {
-                createCircles();
+                createInteraction();
                 return false;
             });
             
             // Create character  
             soldier = new Player(width/2 - 245, height/2 - 245, 490, 490);
             
-            // Set up start button
-            document.getElementById('startButton').addEventListener('click', startGame);
-            document.getElementById('startButton').addEventListener('touchstart', function(e) {
-                startGame();
-                e.preventDefault();
-            });
-            
-            // Sound button for mobiles
-            document.getElementById('soundButton').addEventListener('click', createCircles);
-            document.getElementById('soundButton').addEventListener('touchstart', function(e) {
-                createCircles();
-                e.preventDefault();
-            });
-            
-            // Add interaction to container div as well
-            document.getElementById('p5-container').addEventListener('click', createCircles);
-            document.getElementById('p5-container').addEventListener('touchstart', function(e) {
-                // Only trigger if game has started and not from control buttons
-                if (gameStarted && e.target.id !== 'soundButton') {
-                    createCircles();
-                    e.preventDefault();
-                }
-            });
+            // Set up UI event listeners
+            setupEventListeners();
             
             frameRate(12); // Smoother framerate
             
@@ -389,17 +776,65 @@
             window.audioContext = new AudioContext();
         }
         
-        function hideControls() {
-            document.getElementById('soundButton').style.display = 'none';
+        function setupEventListeners() {
+            // Start button
+            document.getElementById('startButton').addEventListener('click', startExperience);
+            document.getElementById('startButton').addEventListener('touchend', function(e) {
+                e.preventDefault();
+                startExperience();
+            });
+            
+            // Interaction button
+            document.getElementById('interactButton').addEventListener('click', createInteraction);
+            document.getElementById('interactButton').addEventListener('touchend', function(e) {
+                e.preventDefault();
+                createInteraction();
+            });
+            
+            // Help button
+            document.getElementById('helpButton').addEventListener('click', showHelp);
+            document.getElementById('closeHelp').addEventListener('click', hideHelp);
+            
+            // Feedback form option buttons
+            const optionButtons = document.querySelectorAll('.option-button');
+            optionButtons.forEach(button => {
+                button.addEventListener('click', function() {
+                    // Find the group this button belongs to
+                    const group = this.dataset.dimension ? 'dimension' : 
+                                 this.dataset.dimension2 ? 'dimension2' : 
+                                 this.dataset.emotion ? 'emotion' : null;
+                    
+                    if (group) {
+                        // Deselect other buttons in the same group
+                        document.querySelectorAll(`.option-button[data-${group}]`).forEach(btn => {
+                            btn.classList.remove('selected');
+                        });
+                        
+                        // Select this button
+                        this.classList.add('selected');
+                    }
+                });
+            });
+            
+            // Submit feedback button
+            document.getElementById('submitFeedback').addEventListener('click', submitFeedback);
+            
+            // Results screen buttons
+            document.getElementById('continueButton').addEventListener('click', continueFeedback);
+            document.getElementById('restartButton').addEventListener('click', restartExperience);
         }
         
-        function showControls() {
-            document.getElementById('soundButton').style.display = 'flex';
-        }
-        
-        function startGame() {
-            // Remove overlay
+        function startExperience() {
+            // Hide start overlay
             document.getElementById('startOverlay').style.display = 'none';
+            
+            // Show interaction controls
+            document.getElementById('interactButton').style.display = 'flex';
+            document.getElementById('interactionCounter').style.display = 'block';
+            document.getElementById('helpButton').style.display = 'flex';
+            
+            // Update interaction counter
+            updateInteractionCounter();
             
             // Resume AudioContext if suspended
             if (window.audioContext && window.audioContext.state === 'suspended') {
@@ -412,11 +847,228 @@
             // Initialize sounds
             initSounds();
             
-            // Show mobile controls
-            showControls();
-            
-            // Start the game
+            // Start the experience
             gameStarted = true;
+        }
+        
+        function showHelp() {
+            document.getElementById('helpOverlay').style.display = 'flex';
+        }
+        
+        function hideHelp() {
+            document.getElementById('helpOverlay').style.display = 'none';
+        }
+        
+        function createInteraction() {
+            // Only proceed if game is started and not in feedback mode
+            if (!gameStarted || document.getElementById('feedbackOverlay').style.display === 'flex') return;
+            
+            // Play sound
+            playSound();
+            
+            // Create visual elements
+            createCircles();
+            
+            // Increment interaction count
+            interactionCount++;
+            
+            // Update the counter display
+            updateInteractionCounter();
+            
+            // Check if it's time to show feedback form
+            if (interactionCount >= interactionsBeforeFeedback) {
+                // Wait a moment for the sound to finish
+                setTimeout(showFeedbackForm, 1000);
+            }
+        }
+        
+        function updateInteractionCounter() {
+            document.getElementById('interactionCounter').textContent = 
+                `Interactions: ${interactionCount}/${interactionsBeforeFeedback}`;
+        }
+        
+        function showFeedbackForm() {
+            // Hide interaction controls
+            document.getElementById('interactButton').style.display = 'none';
+            document.getElementById('interactionCounter').style.display = 'none';
+            document.getElementById('helpButton').style.display = 'none';
+            
+            // Show feedback overlay
+            document.getElementById('feedbackOverlay').style.display = 'flex';
+            
+            // Reset form selections
+            document.querySelectorAll('.option-button.selected').forEach(btn => {
+                btn.classList.remove('selected');
+            });
+            document.getElementById('uncannySlider').value = 5;
+        }
+        
+        function submitFeedback() {
+            // Get selected primary dimension
+            const selectedDimension = document.querySelector('.option-button[data-dimension].selected');
+            const primaryDimension = selectedDimension ? selectedDimension.dataset.dimension : null;
+            
+            // Get selected secondary dimension
+            const selectedDimension2 = document.querySelector('.option-button[data-dimension2].selected');
+            const secondaryDimension = selectedDimension2 ? selectedDimension2.dataset.dimension2 : null;
+            
+            // Get selected emotion
+            const selectedEmotion = document.querySelector('.option-button[data-emotion].selected');
+            const emotion = selectedEmotion ? selectedEmotion.dataset.emotion : null;
+            
+            // Get uncanny slider value
+            const uncannyValue = parseInt(document.getElementById('uncannySlider').value);
+            
+            // Validate that we have necessary inputs
+            if (!primaryDimension || !secondaryDimension || !emotion) {
+                alert("Please complete all questions before submitting.");
+                return;
+            }
+            
+            // Store feedback
+            const feedback = {
+                primaryDimension,
+                secondaryDimension,
+                emotion,
+                uncannyValue,
+                timestamp: new Date().toISOString()
+            };
+            
+            feedbackData.push(feedback);
+            
+            // Update human perception based on feedback
+            updateHumanPerception(feedback);
+            
+            // Hide feedback form
+            document.getElementById('feedbackOverlay').style.display = 'none';
+            
+            // Show results
+            showResults(feedback);
+        }
+        
+        function updateHumanPerception(feedback) {
+            // Map the selected dimensions to the framework values
+            // Primary dimension
+            switch(feedback.primaryDimension) {
+                case "analytical":
+                    humanPerception.analytical = 0.25; // More analytical
+                    break;
+                case "embodied":
+                    humanPerception.analytical = 0.75; // More embodied
+                    break;
+                case "temporal":
+                    humanPerception.temporal = 0.25; // More temporal
+                    break;
+                case "atemporal":
+                    humanPerception.temporal = 0.75; // More atemporal
+                    break;
+            }
+            
+            // Secondary dimension
+            switch(feedback.secondaryDimension) {
+                case "contextual":
+                    humanPerception.contextual = 0.25; // More contextual
+                    break;
+                case "decontextualized":
+                    humanPerception.contextual = 0.75; // More decontextualized
+                    break;
+                case "intuitive":
+                    humanPerception.intuitive = 0.25; // More intuitive
+                    break;
+                case "computational":
+                    humanPerception.intuitive = 0.75; // More computational
+                    break;
+            }
+        }
+        
+        function showResults(feedback) {
+            // Update the visualization
+            document.getElementById('marker-analytical-ai').style.left = `${aiFramework.analytical * 100}%`;
+            document.getElementById('marker-temporal-ai').style.left = `${aiFramework.temporal * 100}%`;
+            document.getElementById('marker-contextual-ai').style.left = `${aiFramework.contextual * 100}%`;
+            document.getElementById('marker-intuitive-ai').style.left = `${aiFramework.intuitive * 100}%`;
+            
+            document.getElementById('marker-analytical-human').style.left = `${humanPerception.analytical * 100}%`;
+            document.getElementById('marker-temporal-human').style.left = `${humanPerception.temporal * 100}%`;
+            document.getElementById('marker-contextual-human').style.left = `${humanPerception.contextual * 100}%`;
+            document.getElementById('marker-intuitive-human').style.left = `${humanPerception.intuitive * 100}%`;
+            
+            // Calculate dimensional gap (simple average of differences)
+            const dimensionalDiff = (
+                Math.abs(aiFramework.analytical - humanPerception.analytical) +
+                Math.abs(aiFramework.temporal - humanPerception.temporal) +
+                Math.abs(aiFramework.contextual - humanPerception.contextual) +
+                Math.abs(aiFramework.intuitive - humanPerception.intuitive)
+            ) / 4;
+            
+            const gapPercentage = Math.round(dimensionalDiff * 100);
+            
+            // Update stats display
+            document.getElementById('uncannyScore').textContent = `Your Uncanny Rating: ${feedback.uncannyValue}/10`;
+            document.getElementById('emotionalResponse').textContent = `Your Emotional Response: ${feedback.emotion}`;
+            document.getElementById('dimensionalGap').textContent = `Dimensional Gap: ${gapPercentage}%`;
+            
+            // Generate interpretation summary
+            let summaryText = "This suggests ";
+            
+            if (gapPercentage > 50) {
+                summaryText += "a significant mismatch between how you perceive this AI interaction and its rules-based design intent.";
+            } else if (gapPercentage > 25) {
+                summaryText += "a moderate difference between your perception and the AI's design parameters.";
+            } else {
+                summaryText += "your perception closely aligns with the intended AI empathy framework dimensions.";
+            }
+            
+            // Add uncanny valley insight
+            if (feedback.uncannyValue > 7) {
+                summaryText += " The high uncanny rating suggests you're experiencing the 'uncanny valley' effect in this interaction.";
+            } else if (feedback.uncannyValue < 4) {
+                summaryText += " Your low uncanny rating suggests this interaction feels relatively natural to you.";
+            }
+            
+            document.getElementById('interpretationSummary').textContent = summaryText;
+            
+            // Show results overlay
+            document.getElementById('resultsOverlay').style.display = 'flex';
+        }
+        
+        function continueFeedback() {
+            // Hide results
+            document.getElementById('resultsOverlay').style.display = 'none';
+            
+            // Reset interaction count
+            interactionCount = 0;
+            updateInteractionCounter();
+            
+            // Show interaction controls again
+            document.getElementById('interactButton').style.display = 'flex';
+            document.getElementById('interactionCounter').style.display = 'block';
+            document.getElementById('helpButton').style.display = 'flex';
+        }
+        
+        function restartExperience() {
+            // Hide results
+            document.getElementById('resultsOverlay').style.display = 'none';
+            
+            // Reset data
+            interactionCount = 0;
+            feedbackData = [];
+            
+            // Reset human perception
+            humanPerception = {
+                analytical: 0.5,
+                temporal: 0.5,
+                contextual: 0.5,
+                intuitive: 0.5
+            };
+            
+            // Update interaction counter
+            updateInteractionCounter();
+            
+            // Show interaction controls again
+            document.getElementById('interactButton').style.display = 'flex';
+            document.getElementById('interactionCounter').style.display = 'block';
+            document.getElementById('helpButton').style.display = 'flex';
         }
         
         // Function to unlock audio on iOS
@@ -462,28 +1114,22 @@
         }
         
         function createCircles() {
-            // Only proceed if game is started
-            if (!gameStarted) return;
-            
-            // Make multiple attempts to play sound
-            playSound();
-            
-            // Create multiple beautiful random circles
-            const numCircles = random(5, 12); // More circles
+            // Create multiple beautiful random shapes
+            const numCircles = random(5, 12);
             const centerX = soldier.x + soldier.width / 2;
             const centerY = soldier.y + soldier.height / 2;
             
             for (let i = 0; i < numCircles; i++) {
-                const size = random(7, 16); // Larger initial size
+                const size = random(7, 16);
                 
-                 // Randomly choose between blue and red colors
-                 let circleColor;
-
+                // Randomly choose between blue and red colors
+                let circleColor;
+                
                 if (random() < 0.5) { // 50% chance of blue
                     // Blue colors (low red, low green, high blue)
                     circleColor = color(
-                        random(0, 50),  // low red
-                        random(0, 100), // low green
+                        random(0, 50),    // low red
+                        random(0, 100),   // low green
                         random(200, 255)  // high blue
                     );
                 } else { // 50% chance of red
@@ -531,7 +1177,7 @@
                     window.backupAudio.play();
                 }
                 
-                // Approach 3: Create a new Audio element each time (works on some mobile browsers)
+                // Approach 3: Create a new Audio element each time
                 const audio = new Audio('sounds/Bulletsound.mp3');
                 audio.play();
                 
@@ -543,20 +1189,11 @@
         // KEYBOARD CONTROL HANDLERS - Simplified to just spacebar
         function keyPressed() {
             if (keyCode === 32) { // Space key
-                if (gameStarted && shoot === 0) {
-                    createCircles();
-                    if (document.getElementById('soundButton')) {
-                        document.getElementById('soundButton').classList.add('active');
-                    }
-                }
-                return false;
-            }
-        }
-        
-        function keyReleased() {
-            if (keyCode === 32) { // Space key
-                if (document.getElementById('soundButton')) {
-                    document.getElementById('soundButton').classList.remove('active');
+                if (gameStarted && shoot === 0 && 
+                    document.getElementById('feedbackOverlay').style.display !== 'flex' &&
+                    document.getElementById('resultsOverlay').style.display !== 'flex' &&
+                    document.getElementById('helpOverlay').style.display !== 'flex') {
+                    createInteraction();
                 }
                 return false;
             }
@@ -627,13 +1264,6 @@
             }
             
             resizeCanvas(canvasWidth, canvasHeight);
-            
-            // Reposition sound button
-            if (gameStarted) {
-                // Adjust sound button
-                const soundBtn = document.getElementById('soundButton');
-                soundBtn.style.bottom = '20px';
-            }
         }
         
         // Additional handler to help with iOS audio
