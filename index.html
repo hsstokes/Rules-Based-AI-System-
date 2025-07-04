@@ -12,21 +12,22 @@
         body {
             margin: 0;
             padding: 0;
-            overflow: hidden;
-            touch-action: none;
+            overflow: auto; /* Changed from 'hidden' to 'auto' to allow scrolling */
             background-color: #f5f5f7;
             font-family: 'Roboto Mono', monospace;
             -webkit-text-size-adjust: 100%;
+            position: relative;
+            min-height: 100vh;
         }
         
         #p5-container {
-            position: absolute;
+            position: fixed; /* Changed from 'absolute' to 'fixed' */
             top: 0;
             left: 0;
             width: 100%;
             height: 100%;
-            overflow: hidden;
-            cursor: pointer;
+            z-index: 10; /* Lower z-index so overlays appear above */
+            touch-action: none; /* Only disable touch actions on the canvas container */
         }
         
         canvas {
@@ -39,11 +40,12 @@
         
         /* Overlays */
         .overlay {
-            position: fixed;
+            position: absolute; /* Changed from 'fixed' to 'absolute' */
             top: 0;
             left: 0;
             width: 100%;
-            height: 100%;
+            height: auto; /* Changed from '100%' to 'auto' to allow scrolling */
+            min-height: 100%; /* Ensure it covers the full height initially */
             background-color: rgba(245, 245, 247, 0.95);
             display: flex;
             flex-direction: column;
@@ -52,23 +54,33 @@
             z-index: 1000;
             overflow-y: auto;
             box-sizing: border-box;
-            padding: 20px;
+            padding: 20px 20px 80px 20px; /* Added more bottom padding */
             -webkit-overflow-scrolling: touch;
         }
         
         #startOverlay {
+            position: fixed; /* Keep start overlay fixed */
+            height: 100%;
             justify-content: center;
         }
         
         #feedbackOverlay {
             display: none;
-            padding-bottom: 100px;
+            padding-bottom: 120px; /* Increased bottom padding */
+            touch-action: auto; /* Allow scrolling on feedback overlay */
         }
         
         #resultsOverlay {
             display: none;
-            justify-content: center;
-            padding-bottom: 100px;
+            padding-bottom: 120px; /* Increased bottom padding */
+            touch-action: auto; /* Allow scrolling on results overlay */
+        }
+        
+        #helpOverlay {
+            position: fixed; /* Keep help overlay fixed */
+            height: 100%;
+            display: none;
+            overflow-y: auto; /* Ensure help content scrolls */
         }
         
         /* Titles and text */
@@ -125,7 +137,7 @@
         
         /* Interaction button */
         #interactButton {
-            position: absolute;
+            position: fixed; /* Changed from 'absolute' to 'fixed' */
             bottom: 20px;
             left: 50%;
             transform: translateX(-50%);
@@ -149,7 +161,7 @@
         }
         
         #interactionCounter {
-            position: absolute;
+            position: fixed; /* Changed from 'absolute' to 'fixed' */
             top: 20px;
             left: 20px;
             background-color: rgba(255, 255, 255, 0.7);
@@ -167,6 +179,7 @@
             display: flex;
             flex-direction: column;
             align-items: center;
+            padding-bottom: 60px; /* Added padding to ensure form doesn't get cut off */
         }
         
         .question {
@@ -210,6 +223,7 @@
             min-height: 44px;
             position: relative;
             overflow: hidden;
+            z-index: 1; /* Ensure buttons are clickable */
         }
         
         .option-button::after {
@@ -292,6 +306,7 @@
         .results-container {
             width: 100%;
             max-width: 600px;
+            padding-bottom: 60px; /* Added padding to ensure content doesn't get cut off */
         }
         
         .dimension-container {
@@ -347,7 +362,7 @@
         
         /* Help button */
         #helpButton {
-            position: absolute;
+            position: fixed; /* Changed from 'absolute' to 'fixed' */
             top: 20px;
             right: 20px;
             width: 40px;
@@ -362,10 +377,6 @@
             cursor: pointer;
             z-index: 100;
             -webkit-tap-highlight-color: rgba(0,0,0,0);
-        }
-        
-        #helpOverlay {
-            display: none;
         }
         
         .framework-diagram {
@@ -401,6 +412,19 @@
         @keyframes spin {
             0% { transform: rotate(0deg); }
             100% { transform: rotate(360deg); }
+        }
+        
+        /* Submit button container to keep it visible */
+        .submit-container {
+            position: sticky;
+            bottom: 20px;
+            width: 100%;
+            display: flex;
+            justify-content: center;
+            padding: 10px 0;
+            background-color: rgba(245, 245, 247, 0.9);
+            z-index: 100;
+            margin-top: 20px;
         }
     </style>
 </head>
@@ -485,8 +509,10 @@
                 </div>
             </div>
             
-            <!-- Submit Button -->
-            <button type="button" id="submitFeedback" class="button primary">Submit Feedback</button>
+            <!-- Sticky Submit Button Container -->
+            <div class="submit-container">
+                <button type="button" id="submitFeedback" class="button primary">Submit Feedback</button>
+            </div>
         </form>
     </div>
     
@@ -922,12 +948,17 @@
                 }
             });
             
-            // Prevent default touch behavior to avoid scrolling issues
-            document.addEventListener('touchmove', function(e) {
-                if (gameStarted) {
-                    e.preventDefault();
-                }
+            // IMPORTANT: Only disable touch actions on game container, not the whole document
+            document.getElementById('p5-container').addEventListener('touchmove', function(e) {
+                e.preventDefault();
             }, { passive: false });
+            
+            // Allow touch scrolling on overlays
+            document.querySelectorAll('.overlay').forEach(overlay => {
+                overlay.addEventListener('touchmove', function(e) {
+                    e.stopPropagation(); // Don't let it bubble to the p5-container
+                }, { passive: true });
+            });
         }
         
         function clearEventListeners() {
@@ -1044,7 +1075,9 @@
         
         function handleOptionTouch(e) {
             e.preventDefault();
+            e.stopPropagation();
             selectOption(this);
+            return false;
         }
         
         function selectOption(button) {
@@ -1143,17 +1176,25 @@
             document.getElementById('interactionCounter').style.display = 'none';
             document.getElementById('helpButton').style.display = 'none';
             
-            // Show feedback overlay
-            document.getElementById('feedbackOverlay').style.display = 'flex';
-            
             // Reset form selections
             document.querySelectorAll('.option-button.selected').forEach(btn => {
                 btn.classList.remove('selected');
             });
             document.getElementById('uncannySlider').value = 5;
             
+            // Show feedback overlay
+            const feedbackOverlay = document.getElementById('feedbackOverlay');
+            feedbackOverlay.style.display = 'flex';
+            
+            // Enable touch scrolling on the overlay
+            feedbackOverlay.style.touchAction = 'auto';
+            
             // Scroll to top to ensure form is visible
             window.scrollTo(0, 0);
+            
+            // Fix height to match content
+            feedbackOverlay.style.height = 'auto';
+            feedbackOverlay.style.minHeight = '100%';
         }
         
         function submitFeedback() {
@@ -1285,7 +1326,15 @@
             document.getElementById('interpretationSummary').textContent = summaryText;
             
             // Show results overlay
-            document.getElementById('resultsOverlay').style.display = 'flex';
+            const resultsOverlay = document.getElementById('resultsOverlay');
+            resultsOverlay.style.display = 'flex';
+            
+            // Enable touch scrolling on the overlay
+            resultsOverlay.style.touchAction = 'auto';
+            
+            // Fix height to match content
+            resultsOverlay.style.height = 'auto';
+            resultsOverlay.style.minHeight = '100%';
         }
         
         function continueFeedback() {
