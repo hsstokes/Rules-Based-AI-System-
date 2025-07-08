@@ -18,7 +18,7 @@
             -webkit-text-size-adjust: 100%;
             position: relative;
             min-height: 100vh;
-            font-size: 14px; /* Reduced base font size */
+            font-size: 14px;
         }
         
         #p5-container {
@@ -53,9 +53,9 @@
             align-items: center;
             z-index: 1000;
             box-sizing: border-box;
-            padding: 10px 10px 80px 10px; /* Add bottom padding for submit button */
-            overflow-y: scroll; /* Change to scroll instead of auto */
-            -webkit-overflow-scrolling: touch; /* Ensure smooth scrolling on iOS */
+            padding: 10px;
+            overflow-y: auto;
+            -webkit-overflow-scrolling: touch;
         }
         
         #startOverlay {
@@ -66,30 +66,30 @@
         
         #feedbackOverlay {
             display: none;
-            padding-bottom: 80px; /* Increase to give more space for the submit button */
-            position: fixed; /* Force this to be fixed */
-            height: 100%; /* Force full height */
+            position: fixed;
+            height: 100%;
+            justify-content: center;
         }
         
         #resultsOverlay {
             display: none;
-            padding-bottom: 60px; /* Reduced padding */
-            overflow-y: scroll; /* Change to scroll for iOS */
+            padding-bottom: 60px;
+            overflow-y: auto;
             touch-action: auto;
-            position: fixed; /* Ensure this is fixed too */
+            position: fixed;
         }
         
         #helpOverlay {
             position: fixed;
             height: 100%;
             display: none;
-            overflow-y: scroll; /* Change to scroll for iOS */
+            overflow-y: auto;
         }
         
         /* Titles and text */
         .title {
-            font-size: 20px; /* Reduced font size */
-            margin: 15px 0;
+            font-size: 20px;
+            margin: 10px 0;
             color: #333;
             text-align: center;
             letter-spacing: 1px;
@@ -97,9 +97,9 @@
         
         .description {
             max-width: 500px;
-            font-size: 14px; /* Reduced font size */
+            font-size: 14px;
             line-height: 1.4;
-            margin-bottom: 20px;
+            margin-bottom: 15px;
             text-align: center;
             color: #555;
             padding: 0 10px;
@@ -107,8 +107,8 @@
         
         /* Buttons */
         .button {
-            padding: 10px 20px; /* Reduced padding */
-            font-size: 16px; /* Reduced font size */
+            padding: 10px 20px;
+            font-size: 16px;
             background-color: transparent;
             color: #0066cc;
             border: 1px solid #0066cc;
@@ -203,31 +203,32 @@
             z-index: 100;
         }
         
-        /* Feedback form elements */
+        /* More compact form styles for single-screen display */
         .feedback-form {
             width: 100%;
-            max-width: 400px; /* Reduced max-width */
+            max-width: 400px;
             display: flex;
             flex-direction: column;
             align-items: center;
-            padding-bottom: 100px; /* Add extra padding at bottom */
+            padding: 0 10px;
         }
         
+        /* Make questions more compact */
         .question {
             width: 100%;
-            margin-bottom: 15px; /* Reduced margin */
+            margin-bottom: 10px;
+            padding-bottom: 10px;
             border-bottom: 1px solid #eee;
-            padding-bottom: 15px;
         }
         
         .question-text {
-            font-size: 14px; /* Reduced font size */
-            margin-bottom: 10px;
+            font-size: 14px;
+            margin-bottom: 8px;
             font-weight: 500;
             text-align: center;
         }
         
-        /* Compact mode for option buttons */
+        /* Option buttons grid */
         .options-grid {
             display: grid;
             grid-template-columns: repeat(2, 1fr);
@@ -236,7 +237,7 @@
         }
         
         .option-button {
-            padding: 8px 4px; /* Reduced padding */
+            padding: 8px 4px;
             background-color: transparent;
             color: #333;
             border: 1px solid #ccc;
@@ -246,9 +247,9 @@
             transition: all 0.2s ease;
             -webkit-tap-highlight-color: rgba(0,0,0,0);
             touch-action: manipulation;
-            font-size: 12px; /* Reduced font size */
+            font-size: 12px;
             text-align: center;
-            min-height: 36px; /* Reduced height but still good for touch */
+            min-height: 36px;
             position: relative;
             overflow: hidden;
             z-index: 1;
@@ -260,52 +261,52 @@
             border-color: #0066cc;
         }
         
-        /* Slider */
-        .slider-container {
+        /* Simplified slider */
+        .simple-slider-container {
             width: 100%;
-            margin-bottom: 15px; /* Reduced margin */
+            margin-bottom: 0;
         }
         
-        .slider-label {
-            display: block;
-            margin-bottom: 10px;
-            text-align: center;
-            font-weight: 500;
-            font-size: 14px; /* Reduced font size */
-        }
-        
-        .slider {
+        .simple-slider {
             width: 100%;
             -webkit-appearance: none;
-            height: 20px; /* Reduced height */
+            height: 16px;
             border-radius: 4px;
             background: #d3d3d3;
             outline: none;
-            margin-bottom: 10px;
+            margin: 0;
         }
         
-        .slider::-webkit-slider-thumb {
+        .simple-slider::-webkit-slider-thumb {
             -webkit-appearance: none;
             appearance: none;
-            width: 25px; /* Reduced size */
-            height: 25px; /* Reduced size */
+            width: 22px;
+            height: 22px;
             border-radius: 50%;
             background: #0066cc;
             cursor: pointer;
         }
         
-        .slider-values {
+        .slider-labels {
             display: flex;
             justify-content: space-between;
             width: 100%;
-            font-size: 11px; /* Reduced font size */
+            font-size: 11px;
             color: #666;
+            margin-bottom: 2px;
+        }
+        
+        /* Submit button within the form */
+        .submit-button {
+            margin-top: 20px;
+            width: 80%;
+            max-width: 250px;
         }
         
         /* Results visualization */
         .results-container {
             width: 100%;
-            max-width: 400px; /* Reduced max-width */
+            max-width: 400px;
             padding-bottom: 40px;
         }
         
@@ -316,13 +317,13 @@
         }
         
         .dimension-title {
-            font-size: 14px; /* Reduced font size */
+            font-size: 14px;
             font-weight: 500;
             margin-bottom: 8px;
         }
         
         .dimension-scale {
-            height: 12px; /* Reduced height */
+            height: 12px;
             width: 100%;
             background: linear-gradient(to right, #3498db, #e74c3c);
             border-radius: 4px;
@@ -332,8 +333,8 @@
         
         .dimension-marker {
             position: absolute;
-            width: 6px; /* Reduced width */
-            height: 16px; /* Reduced height */
+            width: 6px;
+            height: 16px;
             background-color: #333;
             border-radius: 2px;
             top: -2px;
@@ -344,7 +345,7 @@
             display: flex;
             justify-content: space-between;
             width: 100%;
-            font-size: 11px; /* Reduced font size */
+            font-size: 11px;
             color: #666;
             margin-top: 4px;
         }
@@ -358,7 +359,7 @@
         
         .stat-item {
             margin-bottom: 8px;
-            font-size: 12px; /* Reduced font size */
+            font-size: 12px;
         }
         
         /* Help button */
@@ -366,14 +367,14 @@
             position: fixed;
             top: 15px;
             right: 15px;
-            width: 30px; /* Reduced size */
-            height: 30px; /* Reduced size */
+            width: 30px;
+            height: 30px;
             background-color: rgba(0, 0, 0, 0.1);
             border-radius: 50%;
             display: none;
             justify-content: center;
             align-items: center;
-            font-size: 16px; /* Reduced font size */
+            font-size: 16px;
             color: #333;
             cursor: pointer;
             z-index: 100;
@@ -412,30 +413,6 @@
         @keyframes spin {
             0% { transform: rotate(0deg); }
             100% { transform: rotate(360deg); }
-        }
-        
-        /* Fixed quiz layout for mobile */
-        .compact-quiz {
-            width: 100%;
-            max-height: none; /* Remove the height restriction */
-            overflow-y: visible; /* Don't need internal scrolling */
-            display: flex;
-            flex-direction: column;
-            padding-bottom: 100px; /* More padding to ensure all content is visible */
-        }
-        
-        /* Submit button fixed at bottom */
-        .submit-container {
-            position: fixed;
-            bottom: 0;
-            left: 0;
-            width: 100%;
-            background-color: rgba(245, 245, 247, 0.95);
-            padding: 15px 0;/* Increase padding for better touch target */
-            display: flex;
-            justify-content: center;
-            z-index: 1001;
-            box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.1);
         }
     </style>
 </head>
@@ -477,15 +454,12 @@
     <!-- Feedback Overlay -->
     <div id="feedbackOverlay" class="overlay">
         <div class="title">Empathy Framework Analysis</div>
-        <div class="description">
-            How would you characterize the sound and visual experience?
-        </div>
         
         <div class="compact-quiz">
             <form id="feedbackForm" class="feedback-form">
                 <!-- Question 1: Dimensional Axis -->
                 <div class="question">
-                    <div class="question-text">Which dimension best describes the experience?</div>
+                    <div class="question-text">Which dimension best describes this experience?</div>
                     <div class="options-grid">
                         <button type="button" class="option-button" data-dimension="analytical">Analytical</button>
                         <button type="button" class="option-button" data-dimension="embodied">Embodied</button>
@@ -505,20 +479,20 @@
                     </div>
                 </div>
                 
-                <!-- Question 3: Uncanny Valley Rating -->
+                <!-- Question 3: Uncanny Valley Rating - Using a new simplified slider -->
                 <div class="question">
-                    <div class="slider-container">
-                        <div class="slider-label">How "uncanny" did this interaction feel?</div>
-                        <input type="range" min="1" max="10" value="5" class="slider" id="uncannySlider">
-                        <div class="slider-values">
+                    <div class="question-text">How "uncanny" did this interaction feel? <span id="sliderValue">5</span>/10</div>
+                    <div class="simple-slider-container">
+                        <div class="slider-labels">
                             <span>Natural</span>
-                            <span>Deeply Uncanny</span>
+                            <span>Uncanny</span>
                         </div>
+                        <input type="range" min="1" max="10" value="5" class="simple-slider" id="uncannySlider">
                     </div>
                 </div>
                 
                 <!-- Question 4: Emotional Response -->
-                <div class="question">
+                <div class="question" style="border-bottom: none;">
                     <div class="question-text">What emotional response did you experience?</div>
                     <div class="options-grid">
                         <button type="button" class="option-button" data-emotion="curious">Curious</button>
@@ -528,13 +502,9 @@
                     </div>
                 </div>
                 
-                <div style="height: 60px;"></div> <!-- Spacer for fixed button -->
+                <!-- Submit Button (part of the form now) -->
+                <button type="button" id="submitFeedback" class="button primary submit-button">Submit Feedback</button>
             </form>
-        </div>
-        
-        <!-- Fixed Submit Button at Bottom -->
-        <div class="submit-container">
-            <button type="button" id="submitFeedback" class="button primary">Submit Feedback</button>
         </div>
     </div>
     
@@ -976,6 +946,14 @@
             submitButton.addEventListener('click', submitFeedback);
             submitButton.addEventListener('touchstart', handleSubmitTouch);
             
+            // Add slider value display update
+            const uncannySlider = document.getElementById('uncannySlider');
+            if (uncannySlider) {
+                uncannySlider.addEventListener('input', function() {
+                    document.getElementById('sliderValue').textContent = this.value;
+                });
+            }
+            
             // Results screen buttons
             const continueButton = document.getElementById('continueButton');
             continueButton.addEventListener('click', continueFeedback);
@@ -1252,25 +1230,18 @@
                 btn.classList.remove('selected');
             });
             document.getElementById('uncannySlider').value = 5;
+            document.getElementById('sliderValue').textContent = "5";
             
-            // Show feedback overlay
+            // Show feedback overlay - center vertically
             const feedbackOverlay = document.getElementById('feedbackOverlay');
             feedbackOverlay.style.display = 'flex';
+            feedbackOverlay.style.justifyContent = 'center';
             
-            // Enable touch scrolling on the overlay
-            feedbackOverlay.style.touchAction = 'auto';
-            
-            // Force scroll to top with a delay (important for iOS)
+            // Force layout recalculation
             setTimeout(function() {
-                // Multiple scroll methods for cross-browser compatibility
                 window.scrollTo(0, 0);
-                document.body.scrollTop = 0; // For Safari
-                document.documentElement.scrollTop = 0; // For Chrome, Firefox, IE and Opera
-                
-                // Force layout recalculation
-                feedbackOverlay.style.display = 'none';
-                feedbackOverlay.offsetHeight; // Force reflow
-                feedbackOverlay.style.display = 'flex';
+                document.body.scrollTop = 0;
+                document.documentElement.scrollTop = 0;
             }, 50);
         }
         
