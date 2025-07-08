@@ -9,9 +9,6 @@
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Roboto+Mono:wght@300;400;500&display=swap');
         
-        /* All your existing styles remain the same */
-        /* ... */
-        
         body {
             margin: 0;
             padding: 0;
@@ -24,8 +21,421 @@
             font-size: 14px;
         }
         
-        /* All other styles remain unchanged */
-        /* ... */
+        #p5-container {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 10;
+            touch-action: none;
+        }
+        
+        canvas {
+            display: block;
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+        }
+        
+        /* Overlays */
+        .overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(245, 245, 247, 0.95);
+            display: flex;
+            flex-direction: column;
+            justify-content: flex-start;
+            align-items: center;
+            z-index: 1000;
+            box-sizing: border-box;
+            padding: 10px;
+            overflow-y: auto;
+            -webkit-overflow-scrolling: touch;
+        }
+        
+        #startOverlay {
+            position: fixed;
+            height: 100%;
+            justify-content: center;
+        }
+        
+        #feedbackOverlay {
+            display: none;
+            position: fixed;
+            height: 100%;
+            justify-content: flex-start;
+            padding-top: 15px;
+            padding-bottom: 60px; /* Make room for fixed button */
+        }
+        
+        #resultsOverlay {
+            display: none;
+            padding-bottom: 80px; /* Increased from 60px */
+            overflow-y: auto;
+            touch-action: auto;
+            position: fixed;
+        }
+        
+        #helpOverlay {
+            position: fixed;
+            height: 100%;
+            display: none;
+            overflow-y: auto;
+        }
+        
+        /* Titles and text */
+        .title {
+            font-size: 18px;
+            margin: 8px 0;
+            color: #333;
+            text-align: center;
+            letter-spacing: 1px;
+        }
+        
+        .description {
+            max-width: 500px;
+            font-size: 12px;
+            line-height: 1.3;
+            margin-bottom: 12px;
+            text-align: center;
+            color: #555;
+            padding: 0 10px;
+        }
+        
+        /* Buttons */
+        .button {
+            padding: 10px 20px;
+            font-size: 16px;
+            background-color: transparent;
+            color: #0066cc;
+            border: 1px solid #0066cc;
+            border-radius: 20px;
+            cursor: pointer;
+            font-family: 'Roboto Mono', monospace;
+            transition: all 0.3s ease;
+            letter-spacing: 0.5px;
+            -webkit-tap-highlight-color: rgba(0,0,0,0);
+            touch-action: manipulation;
+            margin: 8px 0;
+            min-height: 40px;
+            min-width: 40px;
+        }
+        
+        .button:hover {
+            background-color: rgba(0, 102, 204, 0.1);
+        }
+        
+        .button:active {
+            transform: scale(0.98);
+            background-color: rgba(0, 102, 204, 0.2);
+        }
+        
+        .button.primary {
+            background-color: #0066cc;
+            color: white;
+        }
+        
+        /* Sound Button with Image */
+        #soundButton {
+            position: fixed;
+            bottom: 15px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 80px;
+            height: 80px;
+            background-color: transparent;
+            border: none;
+            border-radius: 0;
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 100;
+            cursor: pointer;
+            -webkit-tap-highlight-color: rgba(0,0,0,0);
+            touch-action: manipulation;
+        }
+        
+        #soundButton img {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+        }
+        
+        #soundButton:active {
+            transform: translateX(-50%) scale(0.95);
+        }
+        
+        /* Fallback for when image is not available */
+        #interactButton {
+            position: fixed;
+            bottom: 15px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 60px;
+            height: 60px;
+            background-color: rgba(0, 102, 204, 0.2);
+            border: 2px solid #0066cc;
+            border-radius: 50%;
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 100;
+            cursor: pointer;
+        }
+        
+        #interactButton:active {
+            transform: translateX(-50%) scale(0.95);
+            background-color: rgba(0, 102, 204, 0.4);
+        }
+        
+        #interactionCounter {
+            position: fixed;
+            top: 15px;
+            left: 15px;
+            background-color: rgba(255, 255, 255, 0.7);
+            padding: 4px 8px;
+            border-radius: 12px;
+            font-size: 12px;
+            display: none;
+            z-index: 100;
+        }
+        
+        /* Ultra-compact quiz styling */
+        .ultra-compact-quiz {
+            width: 100%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 0 10px;
+            margin-top: 0;
+        }
+
+        .feedback-form {
+            width: 100%;
+            max-width: 400px;
+            padding: 0;
+            margin: 0;
+        }
+
+        /* Super compact questions */
+        .question {
+            width: 100%;
+            margin-bottom: 6px;
+            padding-bottom: 6px;
+            border-bottom: 1px solid #eee;
+        }
+
+        .question-text {
+            font-size: 14px;
+            margin-bottom: 6px;
+            font-weight: 500;
+            text-align: center;
+        }
+
+        /* Tighter buttons */
+        .options-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 6px;
+            width: 100%;
+        }
+
+        .option-button {
+            padding: 6px 4px;
+            background-color: transparent;
+            color: #333;
+            border: 1px solid #ccc;
+            border-radius: 8px;
+            cursor: pointer;
+            font-family: 'Roboto Mono', monospace;
+            transition: all 0.2s ease;
+            -webkit-tap-highlight-color: rgba(0,0,0,0);
+            touch-action: manipulation;
+            font-size: 12px;
+            text-align: center;
+            min-height: 32px;
+            position: relative;
+            overflow: hidden;
+            z-index: 1;
+        }
+
+        .option-button.selected {
+            background-color: #0066cc;
+            color: white;
+            border-color: #0066cc;
+        }
+
+        /* Minimal slider */
+        .mini-slider-container {
+            display: flex;
+            align-items: center;
+            width: 100%;
+            margin: 0;
+        }
+
+        .mini-slider {
+            flex: 1;
+            -webkit-appearance: none;
+            height: 12px;
+            border-radius: 4px;
+            background: #d3d3d3;
+            outline: none;
+            margin: 0 8px;
+        }
+
+        .mini-slider::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background: #0066cc;
+            cursor: pointer;
+        }
+
+        .slider-label-small {
+            font-size: 10px;
+            color: #666;
+        }
+
+        /* Fixed submit container at the absolute bottom */
+        .fixed-submit-container {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            padding: 10px;
+            background-color: rgba(245, 245, 247, 0.95);
+            display: flex;
+            justify-content: center;
+            z-index: 1001;
+            box-shadow: 0 -1px 5px rgba(0,0,0,0.1);
+        }
+        
+        /* Results visualization */
+        .results-container {
+            width: 100%;
+            max-width: 400px;
+            padding-bottom: 20px; /* Reduced from 40px */
+        }
+        
+        .dimension-container {
+            margin-bottom: 12px;
+            padding-bottom: 8px;
+            border-bottom: 1px solid #eee;
+        }
+        
+        .dimension-title {
+            font-size: 13px;
+            font-weight: 500;
+            margin-bottom: 6px;
+        }
+        
+        .dimension-scale {
+            height: 10px;
+            width: 100%;
+            background: linear-gradient(to right, #3498db, #e74c3c);
+            border-radius: 4px;
+            position: relative;
+            margin: 5px 0;
+        }
+        
+        .dimension-marker {
+            position: absolute;
+            width: 4px;
+            height: 14px;
+            background-color: #333;
+            border-radius: 2px;
+            top: -2px;
+            transform: translateX(-50%);
+        }
+        
+        .dimension-labels {
+            display: flex;
+            justify-content: space-between;
+            width: 100%;
+            font-size: 10px;
+            color: #666;
+            margin-top: 3px;
+        }
+        
+        .stats-container {
+            background-color: rgba(255, 255, 255, 0.5);
+            border-radius: 8px;
+            padding: 10px;
+            margin-top: 12px;
+        }
+        
+        .stat-item {
+            margin-bottom: 6px;
+            font-size: 11px;/* Smaller stats */
+            line-height: 1.3;
+        }
+        /* Smaller buttons in results view */
+        #resultsOverlay .button {
+           padding: 8px 16px;
+           font-size: 14px;
+           min-height: 36px;
+           margin: 5px 0;
+        }
+        
+        /* Help button */
+        #helpButton {
+            position: fixed;
+            top: 15px;
+            right: 15px;
+            width: 30px;
+            height: 30px;
+            background-color: rgba(0, 0, 0, 0.1);
+            border-radius: 50%;
+            display: none;
+            justify-content: center;
+            align-items: center;
+            font-size: 16px;
+            color: #333;
+            cursor: pointer;
+            z-index: 100;
+        }
+        
+        .framework-diagram {
+            max-width: 100%;
+            margin: 15px 0;
+            border-radius: 6px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        }
+        
+        /* Loading indicator */
+        #loadingOverlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(245, 245, 247, 1);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 2000;
+        }
+        
+        .loader {
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #0066cc;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
     </style>
 </head>
 <body>
@@ -128,14 +538,6 @@
         </div>
         
         <div class="results-container">
-            <!-- REMOVE THIS BUTTON SECTION -->
-            <!--
-            <div style="display: flex; justify-content: space-between; margin-top: 10px; width: 100%; margin-bottom: 10px;">
-                <button id="continueButton" class="button">Continue</button>
-                <button id="restartButton" class="button primary">Restart</button>
-            </div>
-            -->
-            
             <!-- Analytical vs Embodied -->
             <div class="dimension-container">
                 <div class="dimension-title">Analytical ↔ Embodied</div>
@@ -196,7 +598,7 @@
             </div>
         </div>
         
-        <!-- ADD THIS FIXED BUTTON CONTAINER OUTSIDE THE RESULTS CONTAINER -->
+        <!-- Fixed buttons at bottom for results screen -->
         <div class="fixed-submit-container">
             <div style="display: flex; justify-content: space-between; width: 100%; max-width: 400px;">
                 <button id="continueButton" class="button">Continue</button>
@@ -229,8 +631,1073 @@
     </div>
     
     <script>
-        // Your JavaScript remains unchanged
-        // ...
+        // Game variables
+        let walkRight = [];
+        let walkLeft = [];
+        let gridImg;
+        let bulletSound;
+        let bullets = [];
+        let shoot = 0;
+        let gameStarted = false;
+        let soundsLoaded = false;
+        let soundInitialized = false;
+        let soldier;
+        let assetsLoaded = 0;
+        let totalAssets = 13; // 6 right + 6 left images + 1 grid
+        
+        // Canvas dimensions
+        let W_WIDTH = 1920;
+        let W_HEIGHT = 1920;
+        
+        // Interaction tracking
+        let interactionCount = 0;
+        const interactionsBeforeFeedback = 5;
+        
+        // Feedback data
+        let feedbackData = [];
+        
+        // AI Empathy Framework dimensions - rules-based AI preset
+        const aiFramework = {
+            analytical: 0.75,  // More analytical (0) than embodied (1)
+            temporal: 0.25,    // More temporal (0) than atemporal (1)
+            contextual: 0.25,  // More contextual (0) than decontextualized (1)
+            intuitive: 0.15    // More intuitive (0) than computational (1)
+        };
+        
+        // Human perception (will be populated from feedback)
+        let humanPerception = {
+            analytical: 0.5,
+            temporal: 0.5,
+            contextual: 0.5,
+            intuitive: 0.5
+        };
+        
+        // Player class
+        class Player {
+            constructor(x, y, width, height) {
+                this.x = x;
+                this.y = y;
+                this.width = width;
+                this.height = height;
+                this.vel = 4;
+                this.walkCount = 0;
+                this.standing = true;
+                this.last_direction = "right";
+                this.hitbox = {
+                    x: this.x + 75,
+                    y: this.y + 75,
+                    width: this.width - 150,
+                    height: this.height - 150
+                };
+            }
+            
+            draw() {
+                let frames;
+                if (this.last_direction === "right") {
+                    frames = walkRight;
+                } else {
+                    frames = walkLeft;
+                }
+                
+                if (this.walkCount >= frames.length) {
+                    this.walkCount = 0;
+                }
+                
+                // Use raw canvas API for blend mode but with higher opacity
+                let ctx = drawingContext;
+                ctx.save();
+                ctx.globalCompositeOperation = 'darken';
+                ctx.globalAlpha = 1.0; // Less transparent (0.9 -> 1.0)
+                
+                // Draw the frame at exact dimensions
+                if (frames[this.walkCount] && frames[this.walkCount].canvas) {
+                    ctx.drawImage(frames[this.walkCount].canvas, this.x, this.y, this.width, this.height);
+                }
+                
+                // Restore canvas state
+                ctx.restore();
+                
+                this.walkCount += 1;
+                if (this.walkCount >= frames.length) {
+                    this.walkCount = 0;
+                }
+                
+                // Update hitbox with current position
+                this.hitbox = {
+                    x: this.x + 75,
+                    y: this.y + 75,
+                    width: this.width - 150,
+                    height: this.height - 150
+                };
+            }
+        }
+        
+        // Rectangle grid effect (modified from circles)
+        class Projectile {
+            constructor(x, y, radius, colour, direction) {
+                this.x = x;
+                this.y = y;
+                this.radius = radius;
+                this.colour = colour;
+                this.direction = direction;
+                
+                // Random velocity components
+                const angle = random(0, TWO_PI);
+                const speed = random(2, 8);
+                this.velX = speed * cos(angle);
+                this.velY = speed * sin(angle);
+                
+                // Random lifetime
+                this.lifetime = random(30, 120);
+                this.age = 0;
+                this.growing = true;
+                this.maxRadius = radius * random(3, 8); // Larger shapes
+                
+                // Add rotation for rectangles
+                this.rotation = random(TWO_PI);
+                this.rotationSpeed = random(-0.05, 0.05);
+                
+                // Choose effect type (0 = single rect, 1 = grid, 2 = layered)
+                this.effectType = floor(random(3));
+            }
+            
+            draw() {
+                // Add rotation transformation
+                push();
+                translate(this.x, this.y);
+                rotate(this.rotation);
+                
+                // Set color with alpha
+                noStroke();
+                const alpha = map(this.age, 0, this.lifetime, 255, 0);
+                fill(red(this.colour), green(this.colour), blue(this.colour), alpha);
+                
+                // Draw rectangles based on effect type
+                this.drawRectEffect(0, 0, this.radius);
+                
+                pop();
+                
+                // Update position
+                this.x += this.velX;
+                this.y += this.velY;
+                
+                // Update rotation
+                this.rotation += this.rotationSpeed;
+                
+                // Update size - faster growth
+                if (this.growing) {
+                    this.radius += 0.4; // Faster growth
+                    if (this.radius >= this.maxRadius) {
+                        this.growing = false;
+                    }
+                } else {
+                    this.radius = max(0, this.radius - 0.05);
+                }
+                
+                // Update age
+                this.age++;
+            }
+            
+            // Method to draw rectangle effects
+            drawRectEffect(x, y, radius) {
+                rectMode(CENTER);
+                
+                if (this.effectType === 0) {
+                    // Single sharp rectangle
+                    rect(x, y, radius * 2, radius * 2);
+                } else if (this.effectType === 1) {
+                    // Grid pattern
+                    const gridSize = 3;
+                    const cellSize = radius * 2 / gridSize;
+                    for (let i = 0; i < gridSize; i++) {
+                        for (let j = 0; j < gridSize; j++) {
+                            if (random() > 0.3) { // Random gaps
+                                rect(
+                                    (i - gridSize/2 + 0.5) * cellSize,
+                                    (j - gridSize/2 + 0.5) * cellSize,
+                                    cellSize * 0.8,
+                                    cellSize * 0.8
+                                );
+                            }
+                        }
+                    }
+                } else {
+                    // Layered rectangles
+                    for (let i = 0; i < 3; i++) {
+                        const currentAlpha = map(this.age, 0, this.lifetime, 255, 0) / (i + 1);
+                        fill(red(this.colour), green(this.colour), blue(this.colour), currentAlpha);
+                        rect(x, y, radius * 2 * (1 - i * 0.2), radius * 2 * (1 - i * 0.2));
+                    }
+                }
+            }
+            
+            isFinished() {
+                return this.age >= this.lifetime;
+            }
+        }
+        
+        // Function to increment asset loading counter
+        function assetLoaded() {
+            assetsLoaded++;
+            if (assetsLoaded >= totalAssets) {
+                // Hide loading overlay when all assets are loaded
+                document.getElementById('loadingOverlay').style.display = 'none';
+            }
+        }
+        
+        // Preload assets
+        function preload() {
+            // Load background with callback
+            gridImg = loadImage('images/grid_img.jpeg', assetLoaded);
+            
+            // Load character images with callbacks
+            for (let i = 1; i <= 6; i++) {
+                walkRight.push(loadImage(`soldier/${i}.png`, assetLoaded));
+                walkLeft.push(loadImage(`soldier/L${i}.png`, assetLoaded));
+            }
+            
+            // Sound loading
+            soundFormats('mp3');
+            bulletSound = loadSound('sounds/Bulletsound.mp3', function() {
+                soundsLoaded = true;
+            });
+        }
+        
+        function setup() {
+            // Create canvas matching game dimensions and place it in the container
+            let canvas;
+            
+            // Calculate the canvas dimensions while maintaining aspect ratio
+            let canvasWidth, canvasHeight;
+            
+            if (windowWidth / windowHeight > W_WIDTH / W_HEIGHT) {
+                // Window is wider than the target aspect ratio
+                canvasHeight = windowHeight;
+                canvasWidth = canvasHeight * (W_WIDTH / W_HEIGHT);
+            } else {
+                // Window is taller than the target aspect ratio
+                canvasWidth = windowWidth;
+                canvasHeight = canvasWidth * (W_HEIGHT / W_WIDTH);
+            }
+            
+            canvas = createCanvas(canvasWidth, canvasHeight);
+            canvas.parent('p5-container');
+            
+            // Make canvas clickable to trigger interaction
+            canvas.mousePressed(createInteraction);
+            canvas.touchStarted(function() {
+                createInteraction();
+                return false;
+            });
+            
+            // Create character  
+            soldier = new Player(width/2 - 245, height/2 - 245, 490, 490);
+            
+            // Set up UI event listeners
+            setupEventListeners();
+            
+            frameRate(12); // Smoother framerate
+            
+            // Create AudioContext
+            window.AudioContext = window.AudioContext || window.webkitAudioContext;
+            window.audioContext = new AudioContext();
+            
+            // Show loading overlay if assets are still loading
+            if (assetsLoaded < totalAssets) {
+                document.getElementById('loadingOverlay').style.display = 'flex';
+            } else {
+                document.getElementById('loadingOverlay').style.display = 'none';
+            }
+            
+            // Check if the image button exists and works
+            checkImageButton();
+        }
+        
+        // Check if sound button image exists and show/hide appropriate button
+        function checkImageButton() {
+            const soundButton = document.getElementById('soundButton');
+            const interactButton = document.getElementById('interactButton');
+            const img = soundButton.querySelector('img');
+            
+            // Check if the image exists or loads properly
+            if (img) {
+                img.onerror = function() {
+                    // Image failed to load, show the fallback button
+                    soundButton.style.display = 'none';
+                    interactButton.style.display = 'flex';
+                };
+                
+                img.onload = function() {
+                    // Image loaded successfully, use the image button
+                    soundButton.style.display = 'flex';
+                    interactButton.style.display = 'none';
+                };
+            }
+        }
+        
+        function setupEventListeners() {
+            // Remove any existing event listeners to prevent duplicates
+            clearEventListeners();
+            
+            // Start button
+            const startButton = document.getElementById('startButton');
+            startButton.addEventListener('click', handleStartClick);
+            startButton.addEventListener('touchstart', handleStartTouch);
+            
+            // Sound button with image
+            const soundButton = document.getElementById('soundButton');
+            soundButton.addEventListener('click', handleInteractClick);
+            soundButton.addEventListener('touchstart', handleInteractTouch);
+            
+            // Fallback interaction button
+            const interactButton = document.getElementById('interactButton');
+            interactButton.addEventListener('click', handleInteractClick);
+            interactButton.addEventListener('touchstart', handleInteractTouch);
+            
+            // Help button
+            const helpButton = document.getElementById('helpButton');
+            helpButton.addEventListener('click', showHelp);
+            helpButton.addEventListener('touchstart', handleHelpTouch);
+            
+            const closeHelp = document.getElementById('closeHelp');
+            closeHelp.addEventListener('click', hideHelp);
+            closeHelp.addEventListener('touchstart', handleCloseHelpTouch);
+            
+            // Set up option buttons
+            setupOptionButtons();
+            
+            // Submit feedback button
+            const submitButton = document.getElementById('submitFeedback');
+            submitButton.addEventListener('click', submitFeedback);
+            submitButton.addEventListener('touchstart', handleSubmitTouch);
+            
+            // Add slider value display update
+            const uncannySlider = document.getElementById('uncannySlider');
+            if (uncannySlider) {
+                uncannySlider.addEventListener('input', function() {
+                    document.getElementById('sliderValue').textContent = this.value;
+                });
+            }
+            
+            // Results screen buttons
+            const continueButton = document.getElementById('continueButton');
+            continueButton.addEventListener('click', continueFeedback);
+            continueButton.addEventListener('touchstart', handleContinueTouch);
+            
+            const restartButton = document.getElementById('restartButton');
+            restartButton.addEventListener('click', restartExperience);
+            restartButton.addEventListener('touchstart', handleRestartTouch);
+            
+            // Prevent default form submission
+            const feedbackForm = document.getElementById('feedbackForm');
+            feedbackForm.addEventListener('submit', function(e) {
+                e.preventDefault();
+                return false;
+            });
+            
+            // Prevent context menu on long press
+            document.addEventListener('contextmenu', function(e) {
+                if (gameStarted) {
+                    e.preventDefault();
+                    return false;
+                }
+            });
+            
+            // Only disable touch actions on game container, not the whole document
+            document.getElementById('p5-container').addEventListener('touchmove', function(e) {
+                e.preventDefault();
+            }, { passive: false });
+            
+            // Allow touch scrolling on overlays
+            document.querySelectorAll('.overlay').forEach(overlay => {
+                overlay.addEventListener('touchmove', function(e) {
+                    e.stopPropagation(); // Don't let it bubble to the p5-container
+                }, { passive: true });
+            });
+        }
+        
+        function clearEventListeners() {
+            // Helper function to remove and re-add event listeners
+            const removeListeners = (element, handlers) => {
+                if (!element) return;
+                for (const [event, handler] of Object.entries(handlers)) {
+                    element.removeEventListener(event, handler);
+                }
+            };
+            
+            // Clear specific elements that we're reattaching listeners to
+            removeListeners(document.getElementById('startButton'), {
+                'click': handleStartClick,
+                'touchstart': handleStartTouch
+            });
+            
+            removeListeners(document.getElementById('soundButton'), {
+                'click': handleInteractClick,
+                'touchstart': handleInteractTouch
+            });
+            
+            removeListeners(document.getElementById('interactButton'), {
+                'click': handleInteractClick,
+                'touchstart': handleInteractTouch
+            });
+            
+            removeListeners(document.getElementById('helpButton'), {
+                'click': showHelp,
+                'touchstart': handleHelpTouch
+            });
+            
+            removeListeners(document.getElementById('closeHelp'), {
+                'click': hideHelp,
+                'touchstart': handleCloseHelpTouch
+            });
+            
+            removeListeners(document.getElementById('submitFeedback'), {
+                'click': submitFeedback,
+                'touchstart': handleSubmitTouch
+            });
+            
+            removeListeners(document.getElementById('continueButton'), {
+                'click': continueFeedback,
+                'touchstart': handleContinueTouch
+            });
+            
+            removeListeners(document.getElementById('restartButton'), {
+                'click': restartExperience,
+                'touchstart': handleRestartTouch
+            });
+        }
+        
+        // Touch handlers with prevent default
+        function handleStartTouch(e) {
+            e.preventDefault();
+            startExperience();
+        }
+        
+        function handleInteractTouch(e) {
+            e.preventDefault();
+            createInteraction();
+        }
+        
+        function handleHelpTouch(e) {
+            e.preventDefault();
+            showHelp();
+        }
+        
+        function handleCloseHelpTouch(e) {
+            e.preventDefault();
+            hideHelp();
+        }
+        
+        function handleSubmitTouch(e) {
+            e.preventDefault();
+            submitFeedback();
+        }
+        
+        function handleContinueTouch(e) {
+            e.preventDefault();
+            continueFeedback();
+        }
+        
+        function handleRestartTouch(e) {
+            e.preventDefault();
+            restartExperience();
+        }
+        
+        // Click handlers
+        function handleStartClick() {
+            startExperience();
+        }
+        
+        function handleInteractClick() {
+            createInteraction();
+        }
+        
+        function setupOptionButtons() {
+            // Get all option buttons
+            const optionButtons = document.querySelectorAll('.option-button');
+            
+            // Remove any existing listeners
+            optionButtons.forEach(button => {
+                button.removeEventListener('click', handleOptionClick);
+                button.removeEventListener('touchstart', handleOptionTouch);
+            });
+            
+            // Add new listeners
+            optionButtons.forEach(button => {
+                button.addEventListener('click', handleOptionClick);
+                button.addEventListener('touchstart', handleOptionTouch);
+            });
+        }
+        
+        function handleOptionClick(e) {
+            selectOption(this);
+        }
+        
+        function handleOptionTouch(e) {
+            e.preventDefault();
+            e.stopPropagation();
+            selectOption(this);
+            return false;
+        }
+        
+        function selectOption(button) {
+            // Find the group this button belongs to
+            const group = button.hasAttribute('data-dimension') ? 'dimension' : 
+                       button.hasAttribute('data-dimension2') ? 'dimension2' : 
+                       button.hasAttribute('data-emotion') ? 'emotion' : null;
+            
+            if (group) {
+                // Deselect other buttons in the same group
+                document.querySelectorAll(`.option-button[data-${group}]`).forEach(btn => {
+                    btn.classList.remove('selected');
+                });
+                
+                // Select this button
+                button.classList.add('selected');
+                
+                // Add haptic feedback if available
+                if (navigator.vibrate) {
+                    navigator.vibrate(50);
+                }
+            }
+        }
+        
+        function startExperience() {
+            // Hide start overlay
+            document.getElementById('startOverlay').style.display = 'none';
+            
+            // Check which button to show
+            const soundButton = document.getElementById('soundButton');
+            const interactButton = document.getElementById('interactButton');
+            const img = soundButton.querySelector('img');
+            
+            if (img && img.complete && img.naturalWidth !== 0) {
+                // Image loaded properly, show the image button
+                soundButton.style.display = 'flex';
+                interactButton.style.display = 'none';
+            } else {
+                // Image failed to load or doesn't exist, show the fallback button
+                soundButton.style.display = 'none';
+                interactButton.style.display = 'flex';
+            }
+            
+            document.getElementById('interactionCounter').style.display = 'block';
+            document.getElementById('helpButton').style.display = 'flex';
+            
+            // Update interaction counter
+            updateInteractionCounter();
+            
+            // Resume AudioContext if suspended
+            if (window.audioContext && window.audioContext.state === 'suspended') {
+                window.audioContext.resume();
+            }
+            
+            // Try to unlock audio on iOS
+            unlockAudio();
+            
+            // Initialize sounds
+            initSounds();
+            
+            // Start the experience
+            gameStarted = true;
+        }
+        
+        function showHelp() {
+            document.getElementById('helpOverlay').style.display = 'flex';
+        }
+        
+        function hideHelp() {
+            document.getElementById('helpOverlay').style.display = 'none';
+        }
+        
+        function createInteraction() {
+            // Only proceed if game is started and not in feedback mode
+            if (!gameStarted || 
+                document.getElementById('feedbackOverlay').style.display === 'flex' ||
+                document.getElementById('helpOverlay').style.display === 'flex' ||
+                document.getElementById('resultsOverlay').style.display === 'flex') {
+                return;
+            }
+            
+            // Play sound
+            playSound();
+            
+            // Create visual elements
+            createCircles();
+            
+            // Increment interaction count
+            interactionCount++;
+            
+            // Update the counter display
+            updateInteractionCounter();
+            
+            // Check if it's time to show feedback form
+            if (interactionCount >= interactionsBeforeFeedback) {
+                // Wait a moment for the sound to finish
+                setTimeout(showFeedbackForm, 1000);
+            }
+        }
+        
+        function updateInteractionCounter() {
+            document.getElementById('interactionCounter').textContent = 
+                `Interactions: ${interactionCount}/${interactionsBeforeFeedback}`;
+        }
+        
+        function showFeedbackForm() {
+            // Hide interaction controls
+            document.getElementById('soundButton').style.display = 'none';
+            document.getElementById('interactButton').style.display = 'none';
+            document.getElementById('interactionCounter').style.display = 'none';
+            document.getElementById('helpButton').style.display = 'none';
+            
+            // Reset form selections
+            document.querySelectorAll('.option-button.selected').forEach(btn => {
+                btn.classList.remove('selected');
+            });
+            document.getElementById('uncannySlider').value = 5;
+            document.getElementById('sliderValue').textContent = "5";
+            
+            // Show feedback overlay - use flex-start alignment
+            const feedbackOverlay = document.getElementById('feedbackOverlay');
+            feedbackOverlay.style.display = 'flex';
+            feedbackOverlay.style.justifyContent = 'flex-start';
+            
+            // Force scroll to top
+            setTimeout(function() {
+                window.scrollTo(0, 0);
+                document.body.scrollTop = 0;
+                document.documentElement.scrollTop = 0;
+            }, 50);
+        }
+        
+        function submitFeedback() {
+            // Get selected primary dimension
+            const selectedDimension = document.querySelector('.option-button[data-dimension].selected');
+            const primaryDimension = selectedDimension ? selectedDimension.getAttribute('data-dimension') : null;
+            
+            // Get selected secondary dimension
+            const selectedDimension2 = document.querySelector('.option-button[data-dimension2].selected');
+            const secondaryDimension = selectedDimension2 ? selectedDimension2.getAttribute('data-dimension2') : null;
+            
+            // Get selected emotion
+            const selectedEmotion = document.querySelector('.option-button[data-emotion].selected');
+            const emotion = selectedEmotion ? selectedEmotion.getAttribute('data-emotion') : null;
+            
+            // Get uncanny slider value
+            const uncannySlider = document.getElementById('uncannySlider');
+            const uncannyValue = uncannySlider ? parseInt(uncannySlider.value) : 5;
+    
+            console.log("Uncanny value captured:", uncannyValue); // Debug log
+            
+            // Validate that we have necessary inputs
+            if (!primaryDimension || !secondaryDimension || !emotion) {
+                alert("Please complete all questions before submitting.");
+                return;
+            }
+            
+            // Store feedback
+            const feedback = {
+                primaryDimension,
+                secondaryDimension,
+                emotion,
+                uncannyValue,
+                timestamp: new Date().toISOString()
+            };
+            
+            feedbackData.push(feedback);
+            
+            // Update human perception based on feedback
+            updateHumanPerception(feedback);
+            
+            // Hide feedback form
+            document.getElementById('feedbackOverlay').style.display = 'none';
+            
+            // Show results
+            showResults(feedback);
+            
+            // Scroll to top to ensure results are visible
+            window.scrollTo(0, 0);
+        }
+        
+        function updateHumanPerception(feedback) {
+            // Map the selected dimensions to the framework values
+            // Primary dimension
+            switch(feedback.primaryDimension) {
+                case "analytical":
+                    humanPerception.analytical = 0.25; // More analytical
+                    break;
+                case "embodied":
+                    humanPerception.analytical = 0.75; // More embodied
+                    break;
+                case "temporal":
+                    humanPerception.temporal = 0.25; // More temporal
+                    break;
+                case "atemporal":
+                    humanPerception.temporal = 0.75; // More atemporal
+                    break;
+            }
+            
+            // Secondary dimension
+            switch(feedback.secondaryDimension) {
+                case "contextual":
+                    humanPerception.contextual = 0.25; // More contextual
+                    break;
+                case "decontextualized":
+                    humanPerception.contextual = 0.75; // More decontextualized
+                    break;
+                case "intuitive":
+                    humanPerception.intuitive = 0.25; // More intuitive
+                    break;
+                case "computational":
+                    humanPerception.intuitive = 0.75; // More computational
+                    break;
+            }
+        }
+        
+        function showResults(feedback) {
+            // Update the visualization
+            document.getElementById('marker-analytical-ai').style.left = `${aiFramework.analytical * 100}%`;
+            document.getElementById('marker-temporal-ai').style.left = `${aiFramework.temporal * 100}%`;
+            document.getElementById('marker-contextual-ai').style.left = `${aiFramework.contextual * 100}%`;
+            document.getElementById('marker-intuitive-ai').style.left = `${aiFramework.intuitive * 100}%`;
+            
+            document.getElementById('marker-analytical-human').style.left = `${humanPerception.analytical * 100}%`;
+            document.getElementById('marker-temporal-human').style.left = `${humanPerception.temporal * 100}%`;
+            document.getElementById('marker-contextual-human').style.left = `${humanPerception.contextual * 100}%`;
+            document.getElementById('marker-intuitive-human').style.left = `${humanPerception.intuitive * 100}%`;
+            
+            // Calculate dimensional gap (simple average of differences)
+            const dimensionalDiff = (
+                Math.abs(aiFramework.analytical - humanPerception.analytical) +
+                Math.abs(aiFramework.temporal - humanPerception.temporal) +
+                Math.abs(aiFramework.contextual - humanPerception.contextual) +
+                Math.abs(aiFramework.intuitive - humanPerception.intuitive)
+            ) / 4;
+            
+            const gapPercentage = Math.round(dimensionalDiff * 100);
+            
+            // Update stats display
+            document.getElementById('uncannyScore').textContent = `Your Uncanny Rating: ${feedback.uncannyValue}/10`;
+            document.getElementById('emotionalResponse').textContent = `Your Emotional Response: ${feedback.emotion}`;
+            document.getElementById('dimensionalGap').textContent = `Dimensional Gap: ${gapPercentage}%`;
+            
+            // Generate interpretation summary
+            let summaryText = "This suggests ";
+            
+            if (gapPercentage > 50) {
+                summaryText += "a significant mismatch between how you perceive this AI interaction and its rules-based design intent.";
+            } else if (gapPercentage > 25) {
+                summaryText += "a moderate difference between your perception and the AI's design parameters.";
+            } else {
+                summaryText += "your perception closely aligns with the intended AI empathy framework dimensions.";
+            }
+            
+            // Add uncanny valley insight
+            if (feedback.uncannyValue > 7) {
+                summaryText += " The high uncanny rating suggests you're experiencing the 'uncanny valley' effect in this interaction.";
+            } else if (feedback.uncannyValue < 4) {
+                summaryText += " Your low uncanny rating suggests this interaction feels relatively natural to you.";
+            }
+            
+            document.getElementById('interpretationSummary').textContent = summaryText;
+            
+            // Show results overlay
+            const resultsOverlay = document.getElementById('resultsOverlay');
+            resultsOverlay.style.display = 'flex';
+            
+            // Ensure iOS scrolls to top of results
+            setTimeout(function() {
+                window.scrollTo(0, 0);
+                document.body.scrollTop = 0;
+                document.documentElement.scrollTop = 0;
+            }, 50);
+        }
+        
+        function continueFeedback() {
+            // Hide results
+            document.getElementById('resultsOverlay').style.display = 'none';
+            
+            // Reset interaction count
+            interactionCount = 0;
+            updateInteractionCounter();
+            
+            // Show correct interaction button
+            const soundButton = document.getElementById('soundButton');
+            const interactButton = document.getElementById('interactButton');
+            const img = soundButton.querySelector('img');
+            
+            if (img && img.complete && img.naturalWidth !== 0) {
+                soundButton.style.display = 'flex';
+                interactButton.style.display = 'none';
+            } else {
+                soundButton.style.display = 'none';
+                interactButton.style.display = 'flex';
+            }
+            
+            document.getElementById('interactionCounter').style.display = 'block';
+            document.getElementById('helpButton').style.display = 'flex';
+        }
+        
+        function restartExperience() {
+            // Hide results
+            document.getElementById('resultsOverlay').style.display = 'none';
+            
+            // Reset data
+            interactionCount = 0;
+            feedbackData = [];
+            
+            // Reset human perception
+            humanPerception = {
+                analytical: 0.5,
+                temporal: 0.5,
+                contextual: 0.5,
+                intuitive: 0.5
+            };
+            
+            // Update interaction counter
+            updateInteractionCounter();
+            
+            // Show correct interaction button
+            const soundButton = document.getElementById('soundButton');
+            const interactButton = document.getElementById('interactButton');
+            const img = soundButton.querySelector('img');
+            
+            if (img && img.complete && img.naturalWidth !== 0) {
+                soundButton.style.display = 'flex';
+                interactButton.style.display = 'none';
+            } else {
+                soundButton.style.display = 'none';
+                interactButton.style.display = 'flex';
+            }
+            
+            document.getElementById('interactionCounter').style.display = 'block';
+            document.getElementById('helpButton').style.display = 'flex';
+        }
+        
+        // Function to unlock audio on iOS
+        function unlockAudio() {
+            // Play silent audio to unlock
+            const audioElement = document.createElement('audio');
+            audioElement.setAttribute('src', 'data:audio/mp3;base64,SUQzAwAAAAAAIlRJVDIAAAABAAAASVRTUwAAAAEAAABUQ09OAAAABAAAAE11c2ljLw==');
+            audioElement.setAttribute('playsinline', 'true');
+            audioElement.play().catch(e => {
+                console.log('Audio unlock error:', e);
+            });
+            
+            // Create and play a silent oscillator
+            if (window.audioContext) {
+                try {
+                    const oscillator = window.audioContext.createOscillator();
+                    const gainNode = window.audioContext.createGain();
+                    gainNode.gain.value = 0;
+                    oscillator.connect(gainNode);
+                    gainNode.connect(window.audioContext.destination);
+                    oscillator.start(0);
+                    oscillator.stop(0.001);
+                } catch (e) {
+                    console.log('Oscillator error:', e);
+                }
+            }
+        }
+        
+        function initSounds() {
+            // Force audio context to start
+            if (window.audioContext && window.audioContext.state === 'suspended') {
+                window.audioContext.resume().catch(e => {
+                    console.log('AudioContext resume error:', e);
+                });
+            }
+            
+            // Add a direct HTML5 audio for fallback
+            if (!window.backupAudio) {
+                window.backupAudio = new Audio();
+                window.backupAudio.src = 'sounds/Bulletsound.mp3';
+                window.backupAudio.load();
+            }
+            
+            // Try playing with p5.sound
+            if (bulletSound && typeof bulletSound.play === 'function') {
+                try {
+                    bulletSound.play();
+                    bulletSound.stop();
+                } catch (e) {
+                    console.log('p5.sound error:', e);
+                }
+            }
+            soundsLoaded = true;
+            soundInitialized = true;
+        }
+        
+        function createCircles() {
+            // Create multiple beautiful random shapes
+            const numCircles = random(5, 12);
+            const centerX = soldier.x + soldier.width / 2;
+            const centerY = soldier.y + soldier.height / 2;
+            
+            for (let i = 0; i < numCircles; i++) {
+                const size = random(7, 16);
+                
+                // Randomly choose between blue and red colors
+                let circleColor;
+                
+                if (random() < 0.5) { // 50% chance of blue
+                    // Blue colors (low red, low green, high blue)
+                    circleColor = color(
+                        random(0, 50),    // low red
+                        random(0, 100),   // low green
+                        random(200, 255)  // high blue
+                    );
+                } else { // 50% chance of red
+                    // Red colors (high red, low green, low blue)
+                    circleColor = color(
+                        random(200, 255), // high red
+                        random(0, 50),    // low green
+                        random(0, 50)     // low blue
+                    );
+                }
+                
+                bullets.push(new Projectile(
+                    centerX + random(-15, 15),
+                    centerY + random(-15, 15),
+                    size, 
+                    circleColor,
+                    1
+                ));
+            }
+            
+            // Set cooldown
+            shoot = 1;
+            
+            // Alternate the character direction for visual interest
+            soldier.last_direction = soldier.last_direction === "right" ? "left" : "right";
+        }
+        
+        function playSound() {
+            // Multiple approaches to try to play sound
+            try {
+                // Approach 1: Use p5.sound
+                if (soundsLoaded) {
+                    if (window.audioContext && window.audioContext.state === 'suspended') {
+                        window.audioContext.resume().catch(e => {
+                            console.log('AudioContext resume error:', e);
+                        });
+                    }
+                    
+                    if (bulletSound && typeof bulletSound.play === 'function') {
+                        bulletSound.play();
+                    }
+                }
+                
+                // Approach 2: Use direct HTML5 Audio API as fallback
+                if (window.backupAudio) {
+                    window.backupAudio.currentTime = 0;
+                    window.backupAudio.play().catch(e => {
+                        console.log('Backup audio error:', e);
+                    });
+                }
+                
+                // Approach 3: Create a new Audio element each time
+                const audio = new Audio('sounds/Bulletsound.mp3');
+                audio.play().catch(e => {
+                    console.log('New audio element error:', e);
+                });
+                
+            } catch (e) {
+                console.log('Sound play error:', e);
+            }
+        }
+        
+        // KEYBOARD CONTROL HANDLERS - Simplified to just spacebar
+        function keyPressed() {
+            if (keyCode === 32) { // Space key
+                if (gameStarted && shoot === 0 && 
+                    document.getElementById('feedbackOverlay').style.display !== 'flex' &&
+                    document.getElementById('resultsOverlay').style.display !== 'flex' &&
+                    document.getElementById('helpOverlay').style.display !== 'flex') {
+                    createInteraction();
+                }
+                return false;
+            }
+        }
+        
+        function draw() {
+            if (!gameStarted) return;
+            
+            // Clear the canvas each frame
+            clear();
+            
+            // Draw background - use object-fit:cover style approach
+            let bgWidth, bgHeight;
+            const bgRatio = gridImg.width / gridImg.height;
+            const canvasRatio = width / height;
+            
+            if (bgRatio > canvasRatio) {
+                // Background is wider than canvas
+                bgHeight = height;
+                bgWidth = height * bgRatio;
+            } else {
+                // Background is taller than canvas
+                bgWidth = width;
+                bgHeight = width / bgRatio;
+            }
+            
+            // Center the background
+            const bgX = (width - bgWidth) / 2;
+            const bgY = (height - bgHeight) / 2;
+            
+            // Draw the background
+            image(gridImg, bgX, bgY, bgWidth, bgHeight);
+            
+            // Update bullets
+            for (let i = bullets.length - 1; i >= 0; i--) {
+                bullets[i].draw();
+                
+                // Remove finished bullets
+                if (bullets[i].isFinished()) {
+                    bullets.splice(i, 1);
+                }
+            }
+            
+            // Handle shoot cooldown
+            if (shoot > 0) {
+                shoot += 1;
+            }
+            if (shoot > 3) {
+                shoot = 0;
+            }
+            
+            // Draw character
+            soldier.draw();
+        }
+        
+        function windowResized() {
+            // Resize canvas maintaining aspect ratio
+            let canvasWidth, canvasHeight;
+            
+            if (windowWidth / windowHeight > W_WIDTH / W_HEIGHT) {
+                // Window is wider than the target aspect ratio
+                canvasHeight = windowHeight;
+                canvasWidth = canvasHeight * (W_WIDTH / W_HEIGHT);
+            } else {
+                // Window is taller than the target aspect ratio
+                canvasWidth = windowWidth;
+                canvasHeight = canvasWidth * (W_HEIGHT / W_WIDTH);
+            }
+            
+            resizeCanvas(canvasWidth, canvasHeight);
+        }
+        
+        // Additional handler to help with iOS audio
+        function touchStarted() {
+            unlockAudio();
+            return false;
+        }
+        
+        // Mouse click handler (for sound activation)
+        function mousePressed() {
+            unlockAudio();
+            return false;
+        }
     </script>
 </body>
 </html>
