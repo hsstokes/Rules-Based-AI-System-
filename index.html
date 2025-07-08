@@ -45,8 +45,7 @@
             top: 0;
             left: 0;
             width: 100%;
-            height: auto;
-            min-height: 100%;
+            height: 100%;
             background-color: rgba(245, 245, 247, 0.95);
             display: flex;
             flex-direction: column;
@@ -55,6 +54,7 @@
             z-index: 1000;
             box-sizing: border-box;
             padding: 10px; /* Reduced padding */
+            overflow-y: auto; /* Ensure overlay itself can scroll */
             -webkit-overflow-scrolling: touch;
         }
         
@@ -66,9 +66,9 @@
         
         #feedbackOverlay {
             display: none;
-            padding-bottom: 60px; /* Reduced padding */
-            overflow-y: auto;
-            touch-action: auto;
+            padding-bottom: 80px; /* Increase to give more space for the submit button */
+            position: fixed; /* Force this to be fixed */
+            height: 100%; /* Force full height */
         }
         
         #resultsOverlay {
@@ -415,10 +415,11 @@
         /* Fixed quiz layout for mobile */
         .compact-quiz {
             width: 100%;
-            max-height: 80vh; /* Take up to 80% of viewport height */
-            overflow-y: auto; /* Enable scrolling within quiz */
+            max-height: none; /* Remove the height restriction */
+            overflow-y: visible; /* Don't need internal scrolling */
             display: flex;
             flex-direction: column;
+            padding-bottom: 60px; /* Add padding at bottom to ensure form content doesn't get hidden behind submit button */
         }
         
         /* Submit button fixed at bottom */
