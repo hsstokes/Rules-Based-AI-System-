@@ -12,22 +12,23 @@
         body {
             margin: 0;
             padding: 0;
-            overflow: auto; /* Changed from 'hidden' to 'auto' to allow scrolling */
+            overflow: auto;
             background-color: #f5f5f7;
             font-family: 'Roboto Mono', monospace;
             -webkit-text-size-adjust: 100%;
             position: relative;
             min-height: 100vh;
+            font-size: 14px; /* Reduced base font size */
         }
         
         #p5-container {
-            position: fixed; /* Changed from 'absolute' to 'fixed' */
+            position: fixed;
             top: 0;
             left: 0;
             width: 100%;
             height: 100%;
-            z-index: 10; /* Lower z-index so overlays appear above */
-            touch-action: none; /* Only disable touch actions on the canvas container */
+            z-index: 10;
+            touch-action: none;
         }
         
         canvas {
@@ -40,53 +41,54 @@
         
         /* Overlays */
         .overlay {
-            position: absolute; /* Changed from 'fixed' to 'absolute' */
+            position: absolute;
             top: 0;
             left: 0;
             width: 100%;
-            height: auto; /* Changed from '100%' to 'auto' to allow scrolling */
-            min-height: 100%; /* Ensure it covers the full height initially */
+            height: auto;
+            min-height: 100%;
             background-color: rgba(245, 245, 247, 0.95);
             display: flex;
             flex-direction: column;
             justify-content: flex-start;
             align-items: center;
             z-index: 1000;
-            overflow-y: auto;
             box-sizing: border-box;
-            padding: 20px 20px 80px 20px; /* Added more bottom padding */
+            padding: 10px; /* Reduced padding */
             -webkit-overflow-scrolling: touch;
         }
         
         #startOverlay {
-            position: fixed; /* Keep start overlay fixed */
+            position: fixed;
             height: 100%;
             justify-content: center;
         }
         
         #feedbackOverlay {
             display: none;
-            padding-bottom: 120px; /* Increased bottom padding */
-            touch-action: auto; /* Allow scrolling on feedback overlay */
+            padding-bottom: 60px; /* Reduced padding */
+            overflow-y: auto;
+            touch-action: auto;
         }
         
         #resultsOverlay {
             display: none;
-            padding-bottom: 120px; /* Increased bottom padding */
-            touch-action: auto; /* Allow scrolling on results overlay */
+            padding-bottom: 60px; /* Reduced padding */
+            overflow-y: auto;
+            touch-action: auto;
         }
         
         #helpOverlay {
-            position: fixed; /* Keep help overlay fixed */
+            position: fixed;
             height: 100%;
             display: none;
-            overflow-y: auto; /* Ensure help content scrolls */
+            overflow-y: auto;
         }
         
         /* Titles and text */
         .title {
-            font-size: 24px;
-            margin: 20px 0;
+            font-size: 20px; /* Reduced font size */
+            margin: 15px 0;
             color: #333;
             text-align: center;
             letter-spacing: 1px;
@@ -94,31 +96,31 @@
         
         .description {
             max-width: 500px;
-            font-size: 16px;
-            line-height: 1.5;
-            margin-bottom: 30px;
+            font-size: 14px; /* Reduced font size */
+            line-height: 1.4;
+            margin-bottom: 20px;
             text-align: center;
             color: #555;
-            padding: 0 20px;
+            padding: 0 10px;
         }
         
         /* Buttons */
         .button {
-            padding: 15px 30px;
-            font-size: 18px;
+            padding: 10px 20px; /* Reduced padding */
+            font-size: 16px; /* Reduced font size */
             background-color: transparent;
             color: #0066cc;
             border: 1px solid #0066cc;
-            border-radius: 30px;
+            border-radius: 20px;
             cursor: pointer;
             font-family: 'Roboto Mono', monospace;
             transition: all 0.3s ease;
-            letter-spacing: 1px;
+            letter-spacing: 0.5px;
             -webkit-tap-highlight-color: rgba(0,0,0,0);
             touch-action: manipulation;
-            margin: 10px 0;
-            min-height: 44px;
-            min-width: 44px;
+            margin: 8px 0;
+            min-height: 40px;
+            min-width: 40px;
         }
         
         .button:hover {
@@ -135,17 +137,17 @@
             color: white;
         }
         
-        /* Interaction button */
-        #interactButton {
-            position: fixed; /* Changed from 'absolute' to 'fixed' */
-            bottom: 20px;
+        /* Sound Button with Image */
+        #soundButton {
+            position: fixed;
+            bottom: 15px;
             left: 50%;
             transform: translateX(-50%);
             width: 80px;
             height: 80px;
-            background-color: rgba(0, 102, 204, 0.2);
-            border: 2px solid #0066cc;
-            border-radius: 50%;
+            background-color: transparent;
+            border: none;
+            border-radius: 0;
             display: none;
             justify-content: center;
             align-items: center;
@@ -155,19 +157,47 @@
             touch-action: manipulation;
         }
         
+        #soundButton img {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+        }
+        
+        #soundButton:active {
+            transform: translateX(-50%) scale(0.95);
+        }
+        
+        /* Fallback for when image is not available */
+        #interactButton {
+            position: fixed;
+            bottom: 15px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 60px;
+            height: 60px;
+            background-color: rgba(0, 102, 204, 0.2);
+            border: 2px solid #0066cc;
+            border-radius: 50%;
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 100;
+            cursor: pointer;
+        }
+        
         #interactButton:active {
             transform: translateX(-50%) scale(0.95);
             background-color: rgba(0, 102, 204, 0.4);
         }
         
         #interactionCounter {
-            position: fixed; /* Changed from 'absolute' to 'fixed' */
-            top: 20px;
-            left: 20px;
+            position: fixed;
+            top: 15px;
+            left: 15px;
             background-color: rgba(255, 255, 255, 0.7);
-            padding: 5px 10px;
-            border-radius: 15px;
-            font-size: 14px;
+            padding: 4px 8px;
+            border-radius: 12px;
+            font-size: 12px;
             display: none;
             z-index: 100;
         }
@@ -175,40 +205,36 @@
         /* Feedback form elements */
         .feedback-form {
             width: 100%;
-            max-width: 500px;
+            max-width: 400px; /* Reduced max-width */
             display: flex;
             flex-direction: column;
             align-items: center;
-            padding-bottom: 60px; /* Added padding to ensure form doesn't get cut off */
         }
         
         .question {
             width: 100%;
-            margin-bottom: 25px;
+            margin-bottom: 15px; /* Reduced margin */
+            border-bottom: 1px solid #eee;
+            padding-bottom: 15px;
         }
         
         .question-text {
-            font-size: 16px;
-            margin-bottom: 15px;
+            font-size: 14px; /* Reduced font size */
+            margin-bottom: 10px;
             font-weight: 500;
             text-align: center;
         }
         
+        /* Compact mode for option buttons */
         .options-grid {
             display: grid;
             grid-template-columns: repeat(2, 1fr);
-            gap: 10px;
+            gap: 8px;
             width: 100%;
         }
         
-        @media (min-width: 500px) {
-            .options-grid {
-                grid-template-columns: repeat(4, 1fr);
-            }
-        }
-        
         .option-button {
-            padding: 12px 5px;
+            padding: 8px 4px; /* Reduced padding */
             background-color: transparent;
             color: #333;
             border: 1px solid #ccc;
@@ -218,41 +244,12 @@
             transition: all 0.2s ease;
             -webkit-tap-highlight-color: rgba(0,0,0,0);
             touch-action: manipulation;
-            font-size: 14px;
+            font-size: 12px; /* Reduced font size */
             text-align: center;
-            min-height: 44px;
+            min-height: 36px; /* Reduced height but still good for touch */
             position: relative;
             overflow: hidden;
-            z-index: 1; /* Ensure buttons are clickable */
-        }
-        
-        .option-button::after {
-            content: '';
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            width: 5px;
-            height: 5px;
-            background: rgba(0, 102, 204, 0.5);
-            opacity: 0;
-            border-radius: 100%;
-            transform: scale(1, 1) translate(-50%, -50%);
-            transform-origin: 50% 50%;
-        }
-        
-        .option-button:active::after {
-            animation: ripple 0.4s ease-out;
-        }
-        
-        @keyframes ripple {
-            0% {
-                transform: scale(0, 0);
-                opacity: 0.5;
-            }
-            100% {
-                transform: scale(40, 40);
-                opacity: 0;
-            }
+            z-index: 1;
         }
         
         .option-button.selected {
@@ -264,31 +261,32 @@
         /* Slider */
         .slider-container {
             width: 100%;
-            margin-bottom: 25px;
+            margin-bottom: 15px; /* Reduced margin */
         }
         
         .slider-label {
             display: block;
-            margin-bottom: 15px;
+            margin-bottom: 10px;
             text-align: center;
             font-weight: 500;
+            font-size: 14px; /* Reduced font size */
         }
         
         .slider {
             width: 100%;
             -webkit-appearance: none;
-            height: 25px;
+            height: 20px; /* Reduced height */
             border-radius: 4px;
             background: #d3d3d3;
             outline: none;
-            margin-bottom: 15px;
+            margin-bottom: 10px;
         }
         
         .slider::-webkit-slider-thumb {
             -webkit-appearance: none;
             appearance: none;
-            width: 30px;
-            height: 30px;
+            width: 25px; /* Reduced size */
+            height: 25px; /* Reduced size */
             border-radius: 50%;
             background: #0066cc;
             cursor: pointer;
@@ -298,42 +296,42 @@
             display: flex;
             justify-content: space-between;
             width: 100%;
-            font-size: 12px;
+            font-size: 11px; /* Reduced font size */
             color: #666;
         }
         
         /* Results visualization */
         .results-container {
             width: 100%;
-            max-width: 600px;
-            padding-bottom: 60px; /* Added padding to ensure content doesn't get cut off */
+            max-width: 400px; /* Reduced max-width */
+            padding-bottom: 40px;
         }
         
         .dimension-container {
-            margin-bottom: 20px;
-            padding-bottom: 15px;
+            margin-bottom: 15px;
+            padding-bottom: 10px;
             border-bottom: 1px solid #eee;
         }
         
         .dimension-title {
-            font-size: 16px;
+            font-size: 14px; /* Reduced font size */
             font-weight: 500;
-            margin-bottom: 10px;
+            margin-bottom: 8px;
         }
         
         .dimension-scale {
-            height: 15px;
+            height: 12px; /* Reduced height */
             width: 100%;
             background: linear-gradient(to right, #3498db, #e74c3c);
-            border-radius: 5px;
+            border-radius: 4px;
             position: relative;
-            margin: 8px 0;
+            margin: 6px 0;
         }
         
         .dimension-marker {
             position: absolute;
-            width: 8px;
-            height: 20px;
+            width: 6px; /* Reduced width */
+            height: 16px; /* Reduced height */
             background-color: #333;
             border-radius: 2px;
             top: -2px;
@@ -343,47 +341,47 @@
         .dimension-labels {
             display: flex;
             justify-content: space-between;
-            font-size: 12px;
+            width: 100%;
+            font-size: 11px; /* Reduced font size */
             color: #666;
-            margin-top: 5px;
+            margin-top: 4px;
         }
         
         .stats-container {
             background-color: rgba(255, 255, 255, 0.5);
-            border-radius: 10px;
-            padding: 15px;
-            margin-top: 20px;
+            border-radius: 8px;
+            padding: 12px;
+            margin-top: 15px;
         }
         
         .stat-item {
-            margin-bottom: 10px;
-            font-size: 14px;
+            margin-bottom: 8px;
+            font-size: 12px; /* Reduced font size */
         }
         
         /* Help button */
         #helpButton {
-            position: fixed; /* Changed from 'absolute' to 'fixed' */
-            top: 20px;
-            right: 20px;
-            width: 40px;
-            height: 40px;
+            position: fixed;
+            top: 15px;
+            right: 15px;
+            width: 30px; /* Reduced size */
+            height: 30px; /* Reduced size */
             background-color: rgba(0, 0, 0, 0.1);
             border-radius: 50%;
             display: none;
             justify-content: center;
             align-items: center;
-            font-size: 20px;
+            font-size: 16px; /* Reduced font size */
             color: #333;
             cursor: pointer;
             z-index: 100;
-            -webkit-tap-highlight-color: rgba(0,0,0,0);
         }
         
         .framework-diagram {
             max-width: 100%;
-            margin: 20px 0;
-            border-radius: 8px;
-            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            margin: 15px 0;
+            border-radius: 6px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
         }
         
         /* Loading indicator */
@@ -401,11 +399,11 @@
         }
         
         .loader {
-            border: 5px solid #f3f3f3;
-            border-top: 5px solid #0066cc;
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #0066cc;
             border-radius: 50%;
-            width: 50px;
-            height: 50px;
+            width: 40px;
+            height: 40px;
             animation: spin 1s linear infinite;
         }
         
@@ -414,17 +412,27 @@
             100% { transform: rotate(360deg); }
         }
         
-        /* Submit button container to keep it visible */
-        .submit-container {
-            position: sticky;
-            bottom: 20px;
+        /* Fixed quiz layout for mobile */
+        .compact-quiz {
             width: 100%;
+            max-height: 80vh; /* Take up to 80% of viewport height */
+            overflow-y: auto; /* Enable scrolling within quiz */
+            display: flex;
+            flex-direction: column;
+        }
+        
+        /* Submit button fixed at bottom */
+        .submit-container {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            background-color: rgba(245, 245, 247, 0.95);
+            padding: 10px 0;
             display: flex;
             justify-content: center;
-            padding: 10px 0;
-            background-color: rgba(245, 245, 247, 0.9);
-            z-index: 100;
-            margin-top: 20px;
+            z-index: 1001;
+            box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.1);
         }
     </style>
 </head>
@@ -446,16 +454,19 @@
         </div>
         <button id="startButton" class="button primary">BEGIN INTERACTION</button>
     </div>
-    <div id="soundButton">
-        <img src="images/your-button-image.png" alt="Sound Button">
-    </div>  
     
     <!-- Interaction Controls -->
+    <div id="soundButton">
+        <img src="images/your-button-image.png" alt="Sound Button">
+    </div>
+    
+    <!-- Fallback interaction button (only shown if image doesn't load) -->
     <div id="interactButton">
-        <svg width="30" height="30" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
             <path d="M8 5V19M16 5V19M5 8H19M5 16H19" stroke="#0066cc" stroke-width="2" stroke-linecap="round" />
         </svg>
     </div>
+    
     <div id="interactionCounter">Interactions: 0/5</div>
     <div id="helpButton">?</div>
     
@@ -463,67 +474,71 @@
     <div id="feedbackOverlay" class="overlay">
         <div class="title">Empathy Framework Analysis</div>
         <div class="description">
-            How would you characterize the sound and visual experience you just encountered?
+            How would you characterize the sound and visual experience?
         </div>
         
-        <form id="feedbackForm" class="feedback-form">
-            <!-- Question 1: Dimensional Axis -->
-            <div class="question">
-                <div class="question-text">Which dimension best describes the experience?</div>
-                <div class="options-grid">
-                    <button type="button" class="option-button" data-dimension="analytical">Analytical</button>
-                    <button type="button" class="option-button" data-dimension="embodied">Embodied</button>
-                    <button type="button" class="option-button" data-dimension="temporal">Temporal</button>
-                    <button type="button" class="option-button" data-dimension="atemporal">Atemporal</button>
-                </div>
-            </div>
-            
-            <!-- Question 2: Second Dimension -->
-            <div class="question">
-                <div class="question-text">Which secondary dimension did you notice?</div>
-                <div class="options-grid">
-                    <button type="button" class="option-button" data-dimension2="contextual">Contextual</button>
-                    <button type="button" class="option-button" data-dimension2="decontextualized">Decontextualized</button>
-                    <button type="button" class="option-button" data-dimension2="intuitive">Intuitive</button>
-                    <button type="button" class="option-button" data-dimension2="computational">Computational</button>
-                </div>
-            </div>
-            
-            <!-- Question 3: Uncanny Valley Rating -->
-            <div class="question">
-                <div class="slider-container">
-                    <div class="slider-label">How "uncanny" did this interaction feel?</div>
-                    <input type="range" min="1" max="10" value="5" class="slider" id="uncannySlider">
-                    <div class="slider-values">
-                        <span>Natural</span>
-                        <span>Deeply Uncanny</span>
+        <div class="compact-quiz">
+            <form id="feedbackForm" class="feedback-form">
+                <!-- Question 1: Dimensional Axis -->
+                <div class="question">
+                    <div class="question-text">Which dimension best describes the experience?</div>
+                    <div class="options-grid">
+                        <button type="button" class="option-button" data-dimension="analytical">Analytical</button>
+                        <button type="button" class="option-button" data-dimension="embodied">Embodied</button>
+                        <button type="button" class="option-button" data-dimension="temporal">Temporal</button>
+                        <button type="button" class="option-button" data-dimension="atemporal">Atemporal</button>
                     </div>
                 </div>
-            </div>
-            
-            <!-- Question 4: Emotional Response -->
-            <div class="question">
-                <div class="question-text">What emotional response did you experience?</div>
-                <div class="options-grid">
-                    <button type="button" class="option-button" data-emotion="curious">Curious</button>
-                    <button type="button" class="option-button" data-emotion="confused">Confused</button>
-                    <button type="button" class="option-button" data-emotion="engaged">Engaged</button>
-                    <button type="button" class="option-button" data-emotion="unsettled">Unsettled</button>
+                
+                <!-- Question 2: Second Dimension -->
+                <div class="question">
+                    <div class="question-text">Which secondary dimension did you notice?</div>
+                    <div class="options-grid">
+                        <button type="button" class="option-button" data-dimension2="contextual">Contextual</button>
+                        <button type="button" class="option-button" data-dimension2="decontextualized">Decontextualized</button>
+                        <button type="button" class="option-button" data-dimension2="intuitive">Intuitive</button>
+                        <button type="button" class="option-button" data-dimension2="computational">Computational</button>
+                    </div>
                 </div>
-            </div>
-            
-            <!-- Sticky Submit Button Container -->
-            <div class="submit-container">
-                <button type="button" id="submitFeedback" class="button primary">Submit Feedback</button>
-            </div>
-        </form>
+                
+                <!-- Question 3: Uncanny Valley Rating -->
+                <div class="question">
+                    <div class="slider-container">
+                        <div class="slider-label">How "uncanny" did this interaction feel?</div>
+                        <input type="range" min="1" max="10" value="5" class="slider" id="uncannySlider">
+                        <div class="slider-values">
+                            <span>Natural</span>
+                            <span>Deeply Uncanny</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Question 4: Emotional Response -->
+                <div class="question">
+                    <div class="question-text">What emotional response did you experience?</div>
+                    <div class="options-grid">
+                        <button type="button" class="option-button" data-emotion="curious">Curious</button>
+                        <button type="button" class="option-button" data-emotion="confused">Confused</button>
+                        <button type="button" class="option-button" data-emotion="engaged">Engaged</button>
+                        <button type="button" class="option-button" data-emotion="unsettled">Unsettled</button>
+                    </div>
+                </div>
+                
+                <div style="height: 60px;"></div> <!-- Spacer for fixed button -->
+            </form>
+        </div>
+        
+        <!-- Fixed Submit Button at Bottom -->
+        <div class="submit-container">
+            <button type="button" id="submitFeedback" class="button primary">Submit Feedback</button>
+        </div>
     </div>
     
     <!-- Results Overlay -->
     <div id="resultsOverlay" class="overlay">
         <div class="title">Dimensional Empathy Analysis</div>
         <div class="description">
-            Here's how your perceptions compare with the intended AI empathy framework dimensions.
+            How your perceptions compare with AI framework dimensions:
         </div>
         
         <div class="results-container">
@@ -586,31 +601,31 @@
                 <div class="stat-item" id="interpretationSummary">This suggests you perceive this AI interaction as more embodied and intuitive than its rules-based design intended.</div>
             </div>
             
-            <div style="display: flex; justify-content: space-between; margin-top: 30px; width: 100%;">
-                <button id="continueButton" class="button">Continue Exploring</button>
-                <button id="restartButton" class="button primary">Start New Analysis</button>
+            <div style="display: flex; justify-content: space-between; margin-top: 20px; width: 100%;">
+                <button id="continueButton" class="button">Continue</button>
+                <button id="restartButton" class="button primary">Restart</button>
             </div>
         </div>
     </div>
     
     <!-- Help Overlay -->
     <div id="helpOverlay" class="overlay">
-        <div class="title">Understanding the Dimensional Empathy Framework</div>
+        <div class="title">The Dimensional Empathy Framework</div>
         <div class="description">
-            The framework maps the emotional and cognitive dimensions of human-AI interaction, helping us understand where the "uncanny valley" emerges.
+            Understanding where the "uncanny valley" emerges in AI interactions.
         </div>
         
         <img class="framework-diagram" src="https://placehold.co/600x400?text=Empathy+Framework+Diagram" alt="Empathy Framework Diagram">
         
-        <div style="max-width: 600px; text-align: left; margin: 0 auto 30px auto;">
-            <h3>Key Dimensions:</h3>
-            <p><strong>Analytical vs Embodied</strong>: Refers to whether the interaction feels calculated and data-driven (analytical) or physically and emotionally present (embodied).</p>
-            <p><strong>Temporal vs Atemporal</strong>: Describes whether the interaction feels connected to the flow of time (temporal) or exists outside normal time constraints (atemporal).</p>
-            <p><strong>Contextual vs Decontextualized</strong>: Measures whether the interaction feels grounded in a specific context or floating free from contextual boundaries.</p>
-            <p><strong>Intuitive vs Computational</strong>: Distinguishes between interactions that feel natural and effortless versus those that feel calculated and algorithmically determined.</p>
+        <div style="max-width: 400px; text-align: left; margin: 0 auto 20px auto;">
+            <h3 style="font-size: 16px;">Key Dimensions:</h3>
+            <p style="font-size: 12px;"><strong>Analytical vs Embodied</strong>: Data-driven calculation vs. physical/emotional presence.</p>
+            <p style="font-size: 12px;"><strong>Temporal vs Atemporal</strong>: Connected to time flow vs. outside time constraints.</p>
+            <p style="font-size: 12px;"><strong>Contextual vs Decontextualized</strong>: Grounded in context vs. context-free.</p>
+            <p style="font-size: 12px;"><strong>Intuitive vs Computational</strong>: Natural/effortless vs. calculated/algorithmic.</p>
             
-            <h3>The Uncanny Valley:</h3>
-            <p>The "uncanny valley" occurs when an AI interaction is close to human-like but not quite there--creating a sense of unease or discomfort. This framework helps identify where that threshold exists for different people.</p>
+            <h3 style="font-size: 16px;">The Uncanny Valley:</h3>
+            <p style="font-size: 12px;">The "uncanny valley" occurs when AI interaction is close to human-like but not quite there—creating a sense of unease or discomfort.</p>
         </div>
         
         <button id="closeHelp" class="button primary">Return to Experience</button>
@@ -894,6 +909,31 @@
             } else {
                 document.getElementById('loadingOverlay').style.display = 'none';
             }
+            
+            // Check if the image button exists and works
+            checkImageButton();
+        }
+        
+        // Check if sound button image exists and show/hide appropriate button
+        function checkImageButton() {
+            const soundButton = document.getElementById('soundButton');
+            const interactButton = document.getElementById('interactButton');
+            const img = soundButton.querySelector('img');
+            
+            // Check if the image exists or loads properly
+            if (img) {
+                img.onerror = function() {
+                    // Image failed to load, show the fallback button
+                    soundButton.style.display = 'none';
+                    interactButton.style.display = 'flex';
+                };
+                
+                img.onload = function() {
+                    // Image loaded successfully, use the image button
+                    soundButton.style.display = 'flex';
+                    interactButton.style.display = 'none';
+                };
+            }
         }
         
         function setupEventListeners() {
@@ -905,7 +945,12 @@
             startButton.addEventListener('click', handleStartClick);
             startButton.addEventListener('touchstart', handleStartTouch);
             
-            // Interaction button
+            // Sound button with image
+            const soundButton = document.getElementById('soundButton');
+            soundButton.addEventListener('click', handleInteractClick);
+            soundButton.addEventListener('touchstart', handleInteractTouch);
+            
+            // Fallback interaction button
             const interactButton = document.getElementById('interactButton');
             interactButton.addEventListener('click', handleInteractClick);
             interactButton.addEventListener('touchstart', handleInteractTouch);
@@ -951,7 +996,7 @@
                 }
             });
             
-            // IMPORTANT: Only disable touch actions on game container, not the whole document
+            // Only disable touch actions on game container, not the whole document
             document.getElementById('p5-container').addEventListener('touchmove', function(e) {
                 e.preventDefault();
             }, { passive: false });
@@ -977,6 +1022,11 @@
             removeListeners(document.getElementById('startButton'), {
                 'click': handleStartClick,
                 'touchstart': handleStartTouch
+            });
+            
+            removeListeners(document.getElementById('soundButton'), {
+                'click': handleInteractClick,
+                'touchstart': handleInteractTouch
             });
             
             removeListeners(document.getElementById('interactButton'), {
@@ -1109,8 +1159,21 @@
             // Hide start overlay
             document.getElementById('startOverlay').style.display = 'none';
             
-            // Show interaction controls
-            document.getElementById('interactButton').style.display = 'flex';
+            // Check which button to show
+            const soundButton = document.getElementById('soundButton');
+            const interactButton = document.getElementById('interactButton');
+            const img = soundButton.querySelector('img');
+            
+            if (img && img.complete && img.naturalWidth !== 0) {
+                // Image loaded properly, show the image button
+                soundButton.style.display = 'flex';
+                interactButton.style.display = 'none';
+            } else {
+                // Image failed to load or doesn't exist, show the fallback button
+                soundButton.style.display = 'none';
+                interactButton.style.display = 'flex';
+            }
+            
             document.getElementById('interactionCounter').style.display = 'block';
             document.getElementById('helpButton').style.display = 'flex';
             
@@ -1175,6 +1238,7 @@
         
         function showFeedbackForm() {
             // Hide interaction controls
+            document.getElementById('soundButton').style.display = 'none';
             document.getElementById('interactButton').style.display = 'none';
             document.getElementById('interactionCounter').style.display = 'none';
             document.getElementById('helpButton').style.display = 'none';
@@ -1194,10 +1258,6 @@
             
             // Scroll to top to ensure form is visible
             window.scrollTo(0, 0);
-            
-            // Fix height to match content
-            feedbackOverlay.style.height = 'auto';
-            feedbackOverlay.style.minHeight = '100%';
         }
         
         function submitFeedback() {
@@ -1331,13 +1391,6 @@
             // Show results overlay
             const resultsOverlay = document.getElementById('resultsOverlay');
             resultsOverlay.style.display = 'flex';
-            
-            // Enable touch scrolling on the overlay
-            resultsOverlay.style.touchAction = 'auto';
-            
-            // Fix height to match content
-            resultsOverlay.style.height = 'auto';
-            resultsOverlay.style.minHeight = '100%';
         }
         
         function continueFeedback() {
@@ -1348,8 +1401,19 @@
             interactionCount = 0;
             updateInteractionCounter();
             
-            // Show interaction controls again
-            document.getElementById('interactButton').style.display = 'flex';
+            // Show correct interaction button
+            const soundButton = document.getElementById('soundButton');
+            const interactButton = document.getElementById('interactButton');
+            const img = soundButton.querySelector('img');
+            
+            if (img && img.complete && img.naturalWidth !== 0) {
+                soundButton.style.display = 'flex';
+                interactButton.style.display = 'none';
+            } else {
+                soundButton.style.display = 'none';
+                interactButton.style.display = 'flex';
+            }
+            
             document.getElementById('interactionCounter').style.display = 'block';
             document.getElementById('helpButton').style.display = 'flex';
         }
@@ -1373,8 +1437,19 @@
             // Update interaction counter
             updateInteractionCounter();
             
-            // Show interaction controls again
-            document.getElementById('interactButton').style.display = 'flex';
+            // Show correct interaction button
+            const soundButton = document.getElementById('soundButton');
+            const interactButton = document.getElementById('interactButton');
+            const img = soundButton.querySelector('img');
+            
+            if (img && img.complete && img.naturalWidth !== 0) {
+                soundButton.style.display = 'flex';
+                interactButton.style.display = 'none';
+            } else {
+                soundButton.style.display = 'none';
+                interactButton.style.display = 'flex';
+            }
+            
             document.getElementById('interactionCounter').style.display = 'block';
             document.getElementById('helpButton').style.display = 'flex';
         }
