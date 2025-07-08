@@ -1274,7 +1274,10 @@
             const emotion = selectedEmotion ? selectedEmotion.getAttribute('data-emotion') : null;
             
             // Get uncanny slider value
-            const uncannyValue = parseInt(document.getElementById('uncannySlider').value);
+            const uncannySlider = document.getElementById('uncannySlider');
+            const uncannyValue = uncannySlider ? parseInt(uncannySlider.value) : 5;
+    
+            console.log("Uncanny value captured:", uncannyValue); // Debug log
             
             // Validate that we have necessary inputs
             if (!primaryDimension || !secondaryDimension || !emotion) {
