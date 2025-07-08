@@ -68,7 +68,9 @@
             display: none;
             position: fixed;
             height: 100%;
-            justify-content: center;
+            justify-content: flex-start;
+            padding-top: 15px;
+            padding-bottom: 60px; /* Make room for fixed button */
         }
         
         #resultsOverlay {
@@ -203,41 +205,48 @@
             z-index: 100;
         }
         
-        /* More compact form styles for single-screen display */
-        .feedback-form {
+        /* Ultra-compact quiz styling */
+        .ultra-compact-quiz {
             width: 100%;
-            max-width: 400px;
             display: flex;
             flex-direction: column;
             align-items: center;
             padding: 0 10px;
+            margin-top: 0;
         }
-        
-        /* Make questions more compact */
+
+        .feedback-form {
+            width: 100%;
+            max-width: 400px;
+            padding: 0;
+            margin: 0;
+        }
+
+        /* Super compact questions */
         .question {
             width: 100%;
-            margin-bottom: 10px;
-            padding-bottom: 10px;
+            margin-bottom: 6px;
+            padding-bottom: 6px;
             border-bottom: 1px solid #eee;
         }
-        
+
         .question-text {
             font-size: 14px;
-            margin-bottom: 8px;
+            margin-bottom: 6px;
             font-weight: 500;
             text-align: center;
         }
-        
-        /* Option buttons grid */
+
+        /* Tighter buttons */
         .options-grid {
             display: grid;
             grid-template-columns: repeat(2, 1fr);
-            gap: 8px;
+            gap: 6px;
             width: 100%;
         }
-        
+
         .option-button {
-            padding: 8px 4px;
+            padding: 6px 4px;
             background-color: transparent;
             color: #333;
             border: 1px solid #ccc;
@@ -249,58 +258,63 @@
             touch-action: manipulation;
             font-size: 12px;
             text-align: center;
-            min-height: 36px;
+            min-height: 32px;
             position: relative;
             overflow: hidden;
             z-index: 1;
         }
-        
+
         .option-button.selected {
             background-color: #0066cc;
             color: white;
             border-color: #0066cc;
         }
-        
-        /* Simplified slider */
-        .simple-slider-container {
+
+        /* Minimal slider */
+        .mini-slider-container {
+            display: flex;
+            align-items: center;
             width: 100%;
-            margin-bottom: 0;
+            margin: 0;
         }
-        
-        .simple-slider {
-            width: 100%;
+
+        .mini-slider {
+            flex: 1;
             -webkit-appearance: none;
-            height: 16px;
+            height: 12px;
             border-radius: 4px;
             background: #d3d3d3;
             outline: none;
-            margin: 0;
+            margin: 0 8px;
         }
-        
-        .simple-slider::-webkit-slider-thumb {
+
+        .mini-slider::-webkit-slider-thumb {
             -webkit-appearance: none;
             appearance: none;
-            width: 22px;
-            height: 22px;
+            width: 20px;
+            height: 20px;
             border-radius: 50%;
             background: #0066cc;
             cursor: pointer;
         }
-        
-        .slider-labels {
-            display: flex;
-            justify-content: space-between;
-            width: 100%;
-            font-size: 11px;
+
+        .slider-label-small {
+            font-size: 10px;
             color: #666;
-            margin-bottom: 2px;
         }
-        
-        /* Submit button within the form */
-        .submit-button {
-            margin-top: 20px;
-            width: 80%;
-            max-width: 250px;
+
+        /* Fixed submit container at the absolute bottom */
+        .fixed-submit-container {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            padding: 10px;
+            background-color: rgba(245, 245, 247, 0.95);
+            display: flex;
+            justify-content: center;
+            z-index: 1001;
+            box-shadow: 0 -1px 5px rgba(0,0,0,0.1);
         }
         
         /* Results visualization */
@@ -453,9 +467,9 @@
     
     <!-- Feedback Overlay -->
     <div id="feedbackOverlay" class="overlay">
-        <div class="title">Empathy Framework Analysis</div>
+        <!-- Removed title to save space -->
         
-        <div class="compact-quiz">
+        <div class="ultra-compact-quiz">
             <form id="feedbackForm" class="feedback-form">
                 <!-- Question 1: Dimensional Axis -->
                 <div class="question">
@@ -479,20 +493,18 @@
                     </div>
                 </div>
                 
-                <!-- Question 3: Uncanny Valley Rating - Using a new simplified slider -->
+                <!-- Question 3: Uncanny Valley Rating - Simplified even further -->
                 <div class="question">
                     <div class="question-text">How "uncanny" did this interaction feel? <span id="sliderValue">5</span>/10</div>
-                    <div class="simple-slider-container">
-                        <div class="slider-labels">
-                            <span>Natural</span>
-                            <span>Uncanny</span>
-                        </div>
-                        <input type="range" min="1" max="10" value="5" class="simple-slider" id="uncannySlider">
+                    <div class="mini-slider-container">
+                        <span class="slider-label-small">Natural</span>
+                        <input type="range" min="1" max="10" value="5" class="mini-slider" id="uncannySlider">
+                        <span class="slider-label-small">Uncanny</span>
                     </div>
                 </div>
                 
                 <!-- Question 4: Emotional Response -->
-                <div class="question" style="border-bottom: none;">
+                <div class="question" style="border-bottom: none; margin-bottom: 5px;">
                     <div class="question-text">What emotional response did you experience?</div>
                     <div class="options-grid">
                         <button type="button" class="option-button" data-emotion="curious">Curious</button>
@@ -501,10 +513,12 @@
                         <button type="button" class="option-button" data-emotion="unsettled">Unsettled</button>
                     </div>
                 </div>
-                
-                <!-- Submit Button (part of the form now) -->
-                <button type="button" id="submitFeedback" class="button primary submit-button">Submit Feedback</button>
             </form>
+        </div>
+        
+        <!-- Fixed Submit Button at Bottom -->
+        <div class="fixed-submit-container">
+            <button type="button" id="submitFeedback" class="button primary">Submit Feedback</button>
         </div>
     </div>
     
@@ -1232,12 +1246,12 @@
             document.getElementById('uncannySlider').value = 5;
             document.getElementById('sliderValue').textContent = "5";
             
-            // Show feedback overlay - center vertically
+            // Show feedback overlay - use flex-start alignment
             const feedbackOverlay = document.getElementById('feedbackOverlay');
             feedbackOverlay.style.display = 'flex';
-            feedbackOverlay.style.justifyContent = 'center';
+            feedbackOverlay.style.justifyContent = 'flex-start';
             
-            // Force layout recalculation
+            // Force scroll to top
             setTimeout(function() {
                 window.scrollTo(0, 0);
                 document.body.scrollTop = 0;
