@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <title>Tactile Thresholds: Empathy Framework</title>
     <script src="https://cdn.jsdelivr.net/npm/p5@1.6.0/lib/p5.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.6.0/addons/p5.sound.min.js"></script>
@@ -41,7 +41,7 @@
         
         /* Overlays */
         .overlay {
-            position: absolute;
+            position: fixed;
             top: 0;
             left: 0;
             width: 100%;
@@ -53,9 +53,9 @@
             align-items: center;
             z-index: 1000;
             box-sizing: border-box;
-            padding: 10px; /* Reduced padding */
-            overflow-y: auto; /* Ensure overlay itself can scroll */
-            -webkit-overflow-scrolling: touch;
+            padding: 10px 10px 80px 10px; /* Add bottom padding for submit button */
+            overflow-y: scroll; /* Change to scroll instead of auto */
+            -webkit-overflow-scrolling: touch; /* Ensure smooth scrolling on iOS */
         }
         
         #startOverlay {
@@ -74,15 +74,16 @@
         #resultsOverlay {
             display: none;
             padding-bottom: 60px; /* Reduced padding */
-            overflow-y: auto;
+            overflow-y: scroll; /* Change to scroll for iOS */
             touch-action: auto;
+            position: fixed; /* Ensure this is fixed too */
         }
         
         #helpOverlay {
             position: fixed;
             height: 100%;
             display: none;
-            overflow-y: auto;
+            overflow-y: scroll; /* Change to scroll for iOS */
         }
         
         /* Titles and text */
@@ -209,6 +210,7 @@
             display: flex;
             flex-direction: column;
             align-items: center;
+            padding-bottom: 100px; /* Add extra padding at bottom */
         }
         
         .question {
@@ -419,7 +421,7 @@
             overflow-y: visible; /* Don't need internal scrolling */
             display: flex;
             flex-direction: column;
-            padding-bottom: 60px; /* Add padding at bottom to ensure form content doesn't get hidden behind submit button */
+            padding-bottom: 100px; /* More padding to ensure all content is visible */
         }
         
         /* Submit button fixed at bottom */
@@ -429,7 +431,7 @@
             left: 0;
             width: 100%;
             background-color: rgba(245, 245, 247, 0.95);
-            padding: 10px 0;
+            padding: 15px 0;/* Increase padding for better touch target */
             display: flex;
             justify-content: center;
             z-index: 1001;
@@ -627,7 +629,7 @@
             <p style="font-size: 12px;"><strong>Intuitive vs Computational</strong>: Natural/effortless vs. calculated/algorithmic.</p>
             
             <h3 style="font-size: 16px;">The Uncanny Valley:</h3>
-            <p style="font-size: 12px;">The "uncanny valley" occurs when AI interaction is close to human-like but not quite there—creating a sense of unease or discomfort.</p>
+            <p style="font-size: 12px;">The "uncanny valley" occurs when AI interaction is close to human-like but not quite there--creating a sense of unease or discomfort.</p>
         </div>
         
         <button id="closeHelp" class="button primary">Return to Experience</button>
@@ -1258,8 +1260,18 @@
             // Enable touch scrolling on the overlay
             feedbackOverlay.style.touchAction = 'auto';
             
-            // Scroll to top to ensure form is visible
-            window.scrollTo(0, 0);
+            // Force scroll to top with a delay (important for iOS)
+            setTimeout(function() {
+                // Multiple scroll methods for cross-browser compatibility
+                window.scrollTo(0, 0);
+                document.body.scrollTop = 0; // For Safari
+                document.documentElement.scrollTop = 0; // For Chrome, Firefox, IE and Opera
+                
+                // Force layout recalculation
+                feedbackOverlay.style.display = 'none';
+                feedbackOverlay.offsetHeight; // Force reflow
+                feedbackOverlay.style.display = 'flex';
+            }, 50);
         }
         
         function submitFeedback() {
@@ -1396,6 +1408,13 @@
             // Show results overlay
             const resultsOverlay = document.getElementById('resultsOverlay');
             resultsOverlay.style.display = 'flex';
+            
+            // Ensure iOS scrolls to top of results
+            setTimeout(function() {
+                window.scrollTo(0, 0);
+                document.body.scrollTop = 0;
+                document.documentElement.scrollTop = 0;
+            }, 50);
         }
         
         function continueFeedback() {
