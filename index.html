@@ -1370,12 +1370,12 @@
             document.getElementById('marker-analytical-ai').style.left = `${aiFramework.analytical * 100}%`;
             document.getElementById('marker-temporal-ai').style.left = `${aiFramework.temporal * 100}%`;
             document.getElementById('marker-contextual-ai').style.left = `${aiFramework.contextual * 100}%`;
-            document.getElementById('marker-intuitive-ai').style.left = `${1 - aiFramework.intuitive * 100}%`;
+            document.getElementById('marker-intuitive-ai').style.left = `${(1 - aiFramework.intuitive) * 100}%`;
             
             document.getElementById('marker-analytical-human').style.left = `${humanPerception.analytical * 100}%`;
             document.getElementById('marker-temporal-human').style.left = `${humanPerception.temporal * 100}%`;
             document.getElementById('marker-contextual-human').style.left = `${humanPerception.contextual * 100}%`;
-            document.getElementById('marker-intuitive-human').style.left = `${1 - humanPerception.intuitive * 100}%`;
+            document.getElementById('marker-intuitive-human').style.left = `${(1 - humanPerception.intuitive) * 100}%`;
             
             // Calculate dimensional gap (simple average of differences)
             const dimensionalDiff = (
